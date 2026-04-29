@@ -10,173 +10,52 @@
     <link
         href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;1,400&family=Syne:wght@400;600;700;800&display=swap"
         rel="stylesheet" />
-
+    <!-- Tailwind CSS v3 + Font Awesome -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
     <style>
-        *,
-        *::before,
-        *::after {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-
-        :root {
-            --bg: #0f0f11;
-            --bg2: #17171a;
-            --bg3: #1e1e22;
-            --bg4: #26262b;
-            --line: rgba(255, 255, 255, 0.07);
-            --line2: rgba(255, 255, 255, 0.13);
-            --text: #e8e6e0;
-            --text2: #888784;
-            --text3: #4e4d4a;
-            --accent: #d4930a;
-            --accent2: #f0aa1e;
-            --accent-bg: rgba(212, 147, 10, 0.13);
-            --green: #4caf7d;
-            --red: #e05c5c;
-            --red-bg: rgba(224, 92, 92, 0.1);
-            --mono: 'JetBrains Mono', monospace;
-            --sans: 'Syne', sans-serif;
-            --r: 8px;
-            --rl: 12px;
-            --shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.3);
-        }
-
-        html,
+        /* Custom overrides for Tailwind + glass theme */
         body {
-            height: 100%;
-            background: var(--bg);
-            color: var(--text);
-            font-family: var(--sans);
-            overflow: hidden;
+            font-family: 'Syne', sans-serif;
         }
 
-        /* app wrapper */
-        #pgv {
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
-            overflow: hidden;
+        .font-mono-custom {
+            font-family: 'JetBrains Mono', monospace;
         }
 
-        /* ========= STICKY NAVBAR (UNIVERSAL) ========= */
-        .sticky-nav {
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            background: rgba(23, 23, 26, 0.92);
-            backdrop-filter: blur(12px);
-            border-bottom: 1px solid var(--line);
-            padding: 0 24px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            height: 56px;
-            flex-shrink: 0;
-            transition: all 0.2s;
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
         }
 
-        .nav-logo {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            cursor: pointer;
-            transition: opacity 0.2s;
+        ::-webkit-scrollbar-track {
+            background: transparent;
         }
 
-        .nav-logo:hover {
-            opacity: 0.85;
+        ::-webkit-scrollbar-thumb {
+            background: #26262b;
+            border-radius: 3px;
         }
 
-        .logo-icon {
-            width: 34px;
-            height: 34px;
-            background: var(--accent);
-            border-radius: var(--r);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 18px;
+        ::-webkit-scrollbar-thumb:hover {
+            background: #4e4d4a;
         }
 
-        .logo-text {
-            font-weight: 800;
-            font-size: 1.2rem;
-            letter-spacing: -0.3px;
-            background: linear-gradient(135deg, #f5e7c8, #e0a21e);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
+        /* Editor and preview specific */
+        #editor {
+            tab-size: 2;
+            caret-color: #d4930a;
+            line-height: 1.8;
         }
 
-        .logo-sub {
-            font-family: var(--mono);
-            font-size: 9px;
-            color: var(--text3);
-            margin-left: 2px;
-        }
-
-        .nav-links {
-            display: flex;
-            gap: 24px;
-            align-items: center;
-        }
-
-        .nav-link {
-            color: var(--text2);
-            text-decoration: none;
-            font-size: 14px;
-            font-weight: 500;
-            transition: color 0.2s;
-            font-family: var(--sans);
-            cursor: pointer;
-            padding: 6px 0;
-            border-bottom: 2px solid transparent;
-        }
-
-        .nav-link:hover {
-            color: var(--accent2);
-            border-bottom-color: var(--accent2);
-        }
-
-        .nav-link.active {
-            color: var(--accent);
-            border-bottom-color: var(--accent);
-        }
-
-        .nav-repo {
-            background: rgba(212, 147, 10, 0.12);
-            padding: 6px 14px;
-            border-radius: 40px;
-            font-family: var(--mono);
-            font-size: 12px;
-            font-weight: 500;
-            transition: background 0.2s;
-        }
-
-        .nav-repo:hover {
+        #editor::selection {
             background: rgba(212, 147, 10, 0.25);
-            color: var(--accent2);
         }
 
-        /* views container */
-        .views-container {
-            flex: 1;
-            position: relative;
-            overflow: hidden;
-        }
-
+        /* Smooth transitions for views */
         .view {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            transition: opacity 0.25s ease, visibility 0.25s;
-            opacity: 1;
-            visibility: visible;
-            overflow-y: auto;
+            transition: opacity 0.3s ease, visibility 0.3s;
         }
 
         .view.hidden {
@@ -185,505 +64,190 @@
             pointer-events: none;
         }
 
-        /* LANDING PAGE */
-        .landing {
-            background: radial-gradient(circle at 20% 30%, #141418, #0a0a0c);
-            overflow-y: auto;
-            padding: 2rem 1.5rem;
-        }
-
-        .landing-container {
-            max-width: 1100px;
-            margin: 0 auto;
-            display: flex;
-            flex-direction: column;
-            gap: 3rem;
-        }
-
-        .hero {
-            text-align: center;
-            padding: 2rem 1rem 1rem;
-        }
-
-        .hero-badge {
-            display: inline-block;
-            background: var(--accent-bg);
-            color: var(--accent2);
-            font-family: var(--mono);
-            font-size: 12px;
-            padding: 4px 12px;
-            border-radius: 40px;
-            margin-bottom: 1.5rem;
-            border: 1px solid rgba(212, 147, 10, 0.3);
-        }
-
-        .hero h1 {
-            font-size: 3.5rem;
-            font-weight: 800;
-            letter-spacing: -0.02em;
-            background: linear-gradient(135deg, #f5e7c8, #e0a21e);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-            margin-bottom: 1rem;
-        }
-
-        .hero p {
-            font-size: 1.2rem;
-            color: var(--text2);
-            max-width: 620px;
-            margin: 0 auto;
-            line-height: 1.6;
-        }
-
-        .btn-large {
-            background: var(--accent);
-            border: none;
-            padding: 12px 28px;
-            font-size: 1rem;
-            font-weight: 700;
-            border-radius: 40px;
-            color: #111;
-            cursor: pointer;
-            transition: transform 0.2s, background 0.2s;
-            margin-top: 2rem;
-            box-shadow: 0 4px 12px rgba(212, 147, 10, 0.25);
-        }
-
-        .btn-large:hover {
-            background: var(--accent2);
-            transform: scale(1.02);
-        }
-
-        .features {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-            gap: 1.8rem;
-            margin: 1rem 0;
-        }
-
-        .feature-card {
-            background: rgba(23, 23, 26, 0.7);
-            backdrop-filter: blur(4px);
-            border: 1px solid var(--line);
-            border-radius: 24px;
-            padding: 1.6rem;
-            transition: all 0.2s;
-        }
-
-        .feature-card:hover {
-            border-color: var(--accent);
-            background: rgba(30, 30, 34, 0.9);
-        }
-
-        .feature-icon {
-            font-size: 2rem;
-            margin-bottom: 1rem;
-        }
-
-        .feature-card h3 {
-            font-size: 1.2rem;
-            margin-bottom: 0.5rem;
-        }
-
-        .feature-card p {
-            color: var(--text2);
-            font-size: 0.9rem;
-            line-height: 1.5;
-        }
-
-        .repo-card {
-            background: var(--bg3);
-            border-radius: 40px;
-            padding: 1rem 2rem;
-            text-align: center;
-            border: 1px solid var(--line2);
-        }
-
-        .repo-card a {
-            color: var(--accent2);
-            text-decoration: none;
-            font-family: var(--mono);
-        }
-
-        .footer-landing {
-            margin-top: 2rem;
-            text-align: center;
-            padding: 1.5rem;
-            border-top: 1px solid var(--line);
-            color: var(--text3);
-            font-size: 0.75rem;
-        }
-
-        /* EDITOR LAYOUT */
-        .editor-main {
-            display: flex;
-            flex-direction: column;
-            height: 100%;
-            background: var(--bg);
-        }
-
-        #panes {
-            display: flex;
-            flex: 1;
-            overflow: hidden;
-        }
-
-        .pane {
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-            min-width: 160px;
-        }
-
-        #pane-left {
-            flex: 1;
-        }
-
-        #pane-right {
-            flex: 1;
-        }
-
-        .pane-bar {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 14px;
-            height: 34px;
-            flex-shrink: 0;
-            background: var(--bg2);
-            border-bottom: 1px solid var(--line);
-        }
-
-        .pane-label {
-            font-size: 10px;
-            font-weight: 700;
-            letter-spacing: 0.1em;
-            text-transform: uppercase;
-            color: var(--text3);
-        }
-
-        .pane-ext {
-            font-family: var(--mono);
-            font-size: 10px;
-            color: var(--accent);
-            background: var(--accent-bg);
-            border: 1px solid rgba(212, 147, 10, 0.22);
-            padding: 1px 8px;
-            border-radius: 20px;
-        }
-
-        #editor {
-            flex: 1;
-            width: 100%;
-            padding: 16px 18px;
-            font-family: var(--mono);
-            font-size: 13.5px;
-            line-height: 1.8;
-            background: var(--bg);
-            color: var(--text);
-            border: none;
-            outline: none;
-            resize: none;
-            tab-size: 2;
-            caret-color: var(--accent2);
-        }
-
-        #editor::selection {
-            background: rgba(212, 147, 10, 0.22);
-        }
-
+        /* Divider styling */
         #divider {
-            width: 5px;
-            flex-shrink: 0;
             cursor: col-resize;
-            background: var(--bg2);
-            border-left: 1px solid var(--line);
-            border-right: 1px solid var(--line);
             transition: background 0.15s;
         }
 
         #divider:hover,
         #divider.active {
-            background: var(--accent-bg);
-            border-color: rgba(212, 147, 10, 0.3);
+            background: rgba(212, 147, 10, 0.2);
         }
 
-        #preview-wrap {
-            flex: 1;
-            overflow: hidden;
-            background: #fff;
-        }
-
-        #preview-frame {
-            width: 100%;
-            height: 100%;
-            border: none;
-            display: block;
-            background: white;
-        }
-
-        #error-box {
-            flex: 1;
-            display: none;
-            padding: 20px;
-            background: var(--bg);
-            overflow: auto;
-        }
-
-        .err-inner {
-            background: var(--red-bg);
-            border: 1px solid rgba(224, 92, 92, 0.22);
-            border-radius: var(--rl);
-            padding: 16px 18px;
-        }
-
-        .err-label {
-            font-size: 10px;
-            font-weight: 700;
-            letter-spacing: 0.1em;
-            text-transform: uppercase;
-            color: var(--red);
-            margin-bottom: 8px;
-        }
-
-        #error-msg {
-            font-family: var(--mono);
-            font-size: 12.5px;
-            color: #f09595;
-            white-space: pre-wrap;
-        }
-
-        /* status bar */
-        #statusbar {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 18px;
-            height: 32px;
-            flex-shrink: 0;
-            background: var(--bg2);
-            border-top: 1px solid var(--line);
-        }
-
-        .status-left {
-            display: flex;
-            gap: 18px;
-            align-items: center;
-        }
-
-        .si {
-            font-family: var(--mono);
-            font-size: 11px;
-            color: var(--text3);
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-
-        .dot {
-            width: 6px;
-            height: 6px;
-            border-radius: 50%;
-            background: var(--text3);
-        }
-
-        .dot.ok {
-            background: var(--green);
-        }
-
-        .dot.err {
-            background: var(--red);
-        }
-
-        #st {
-            color: var(--text2);
-        }
-
-        #st.ok {
-            color: var(--green);
-        }
-
-        #st.err {
-            color: var(--red);
-        }
-
-        .footer-credit {
-            font-family: var(--mono);
-            font-size: 10px;
-            color: var(--text3);
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .footer-credit a {
-            color: var(--accent);
-            text-decoration: none;
-            border-bottom: 1px dotted rgba(212, 147, 10, 0.5);
-        }
-
+        /* Toast animation */
         #toast {
-            position: fixed;
-            bottom: 48px;
-            left: 50%;
-            transform: translateX(-50%) translateY(8px);
-            background: var(--bg3);
-            border: 1px solid var(--line2);
-            color: var(--text);
-            font-family: var(--mono);
-            font-size: 12px;
-            padding: 8px 16px;
-            border-radius: var(--r);
-            opacity: 0;
             transition: opacity 0.2s, transform 0.2s;
-            pointer-events: none;
-            z-index: 1000;
-            white-space: nowrap;
         }
 
         #toast.show {
-            opacity: 1;
-            transform: translateX(-50%) translateY(0);
-        }
-
-        /* toolbar inside editor (actions) */
-        .editor-toolbar {
-            display: flex;
-            align-items: center;
-            justify-content: flex-end;
-            gap: 8px;
-            padding: 8px 18px;
-            background: var(--bg2);
-            border-bottom: 1px solid var(--line);
-            flex-shrink: 0;
-        }
-
-        .btn {
-            font-family: var(--sans);
-            font-size: 12px;
-            font-weight: 600;
-            padding: 5px 14px;
-            border-radius: var(--r);
-            border: 1px solid var(--line2);
-            background: transparent;
-            color: var(--text2);
-            cursor: pointer;
-            transition: background 0.15s;
-        }
-
-        .btn:hover {
-            background: var(--bg3);
-            color: var(--text);
-        }
-
-        .btn-run {
-            background: var(--accent);
-            color: #fff;
-            border-color: var(--accent);
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .btn-run:hover {
-            background: var(--accent2);
-            color: #111;
-        }
-
-        .kbd-hint {
-            font-family: var(--mono);
-            font-size: 9px;
-            background: var(--bg3);
-            border: 1px solid var(--line2);
-            padding: 2px 6px;
-            border-radius: 4px;
-            margin-left: 12px;
+            opacity: 1 !important;
+            transform: translateX(-50%) translateY(0) !important;
         }
     </style>
 </head>
 
-<body>
-    <div id="pgv">
-        <!-- STICKY NAVBAR (shared across views) -->
-        <div class="sticky-nav">
-            <div class="nav-logo" id="nav-home-trigger">
-                <div class="logo-icon">🐾</div>
-                <div>
-                    <span class="logo-text">PGV</span>
-                    <span class="logo-sub">Pug Viewer</span>
+<body class="bg-[#0f0f11] text-[#e8e6e0] overflow-hidden h-screen">
+
+    <div id="pgv" class="flex flex-col h-full overflow-hidden">
+
+        <!-- GLASS NAVBAR - Rounded, blurred, no borders on active links, only icons for GitHub -->
+        <nav
+            class="sticky top-0 z-[100] w-[95%] max-w-5xl mx-auto mt-4 rounded-2xl bg-transparent backdrop-blur-xl border border-white/10 shadow-2xl transition-all duration-300">
+            <div class="flex items-center justify-between px-6 py-3">
+                <!-- Logo -->
+                <div class="nav-logo flex items-center gap-3 cursor-pointer group" id="nav-home-trigger">
+                    <div
+                        class="w-10 h-10 bg-gradient-to-br from-[#d4930a] to-[#f0aa1e] rounded-xl flex items-center justify-center shadow-lg group-hover:scale-105 transition">
+                        <i class="fas fa-paw text-white text-lg"></i>
+                    </div>
+                    <div>
+                        <span
+                            class="text-xl font-extrabold bg-gradient-to-r from-[#f5e7c8] to-[#e0a21e] bg-clip-text text-transparent tracking-tight">PGV</span>
+                        <span class="font-mono-custom text-[10px] text-[#4e4d4a] ml-1">Pug Viewer</span>
+                    </div>
+                </div>
+
+                <!-- Navigation Links - no borders, only icons for GitHub -->
+                <div class="flex items-center gap-6">
+                    <span
+                        class="nav-link text-[#888784] hover:text-[#f0aa1e] transition-all duration-200 text-sm font-semibold cursor-pointer flex items-center gap-2"
+                        data-view="landing" id="nav-landing">
+                        <i class="fas fa-home text-sm"></i> Home
+                    </span>
+                    <span
+                        class="nav-link text-[#888784] hover:text-[#f0aa1e] transition-all duration-200 text-sm font-semibold cursor-pointer flex items-center gap-2"
+                        data-view="editor" id="nav-editor">
+                        <i class="fas fa-code text-sm"></i> Editor
+                    </span>
+                    <a href="https://github.com/furqanRupom/pgv" target="_blank"
+                        class="text-[#888784] hover:text-[#f0aa1e] transition-all duration-200 text-lg ml-2 flex items-center gap-1 hover:scale-105">
+                        <i class="fab fa-github"></i>
+                    </a>
                 </div>
             </div>
-            <div class="nav-links">
-                <span class="nav-link" data-view="landing" id="nav-landing">🏠 Home</span>
-                <span class="nav-link" data-view="editor" id="nav-editor">✍️ Editor</span>
-                <a href="https://github.com/furqanRupom/pgv" target="_blank" class="nav-link nav-repo">📦 GitHub
-                    repo</a>
-            </div>
-        </div>
+        </nav>
 
-        <!-- Views container -->
-        <div class="views-container">
+        <!-- Views Container -->
+        <div class="flex-1 relative overflow-hidden mt-4">
+
             <!-- LANDING VIEW -->
-            <div id="landing-view" class="view landing">
-                <div class="landing-container">
-                    <div class="hero">
-                        <div class="hero-badge">⚡ PURE JS · NO DEPENDENCIES</div>
-                        <h1>PGV · Pug Viewer</h1>
-                        <p>Live Pug (Jade) to HTML compiler with instant preview, dark mode, and zero dependencies.
-                            Write templates effortlessly.</p>
-                        <button id="launch-editor-btn" class="btn-large">🚀 Launch Editor →</button>
+            <div id="landing-view"
+                class="view absolute inset-0 overflow-y-auto px-4 py-6 bg-[radial-gradient(ellipse_at_20%_30%,#141418,#0a0a0c)]">
+                <div class="max-w-6xl mx-auto flex flex-col gap-12">
+                    <!-- Hero Section -->
+                    <div class="text-center py-8">
+                        <div
+                            class="inline-flex items-center gap-2 bg-[#d4930a]/10 backdrop-blur-sm border border-[#d4930a]/30 rounded-full px-4 py-1.5 text-sm font-mono text-[#f0aa1e] mb-6">
+                            <i class="fas fa-bolt text-xs"></i> PURE JS · NO DEPENDENCIES
+                        </div>
+                        <h1
+                            class="text-5xl md:text-7xl font-extrabold bg-gradient-to-r from-[#f5e7c8] to-[#e0a21e] bg-clip-text text-transparent mb-4 flex items-center justify-center gap-3">
+                            <i class="fas fa-paw text-4xl text-[#d4930a]"></i> PGV · Pug Viewer
+                        </h1>
+                        <p class="text-[#888784] text-lg max-w-2xl mx-auto leading-relaxed">
+                            Live Pug (Jade) to HTML compiler with instant preview, dark mode, and zero dependencies.
+                            Write templates effortlessly.
+                        </p>
+                        <button id="launch-editor-btn"
+                            class="mt-8 inline-flex items-center gap-3 bg-[#d4930a] hover:bg-[#f0aa1e] text-black font-bold py-3 px-8 rounded-full transition-all hover:scale-105 shadow-lg hover:shadow-xl">
+                            <i class="fas fa-rocket"></i> Launch Editor →
+                        </button>
                     </div>
-                    <div class="features">
-                        <div class="feature-card">
-                            <div class="feature-icon">📝</div>
-                            <h3>Full Pug Syntax</h3>
-                            <p>Doctype, tags, attributes, nesting, style./script. blocks, inline #[strong tags], and
-                                more.</p>
+
+                    <!-- Features Grid -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                        <div
+                            class="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6 hover:border-[#d4930a]/50 transition-all hover:-translate-y-1">
+                            <i class="fas fa-file-alt text-3xl text-[#d4930a] mb-4"></i>
+                            <h3 class="text-lg font-bold mb-2">Full Pug Syntax</h3>
+                            <p class="text-[#888784] text-sm">Doctype, tags, attributes, nesting, style./script. blocks,
+                                inline tags, and more.</p>
                         </div>
-                        <div class="feature-card">
-                            <div class="feature-icon">⚡</div>
-                            <h3>Live Preview</h3>
-                            <p>Debounced rendering + Ctrl+Enter. Error feedback directly in preview pane.</p>
+                        <div
+                            class="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6 hover:border-[#d4930a]/50 transition-all hover:-translate-y-1">
+                            <i class="fas fa-eye text-3xl text-[#d4930a] mb-4"></i>
+                            <h3 class="text-lg font-bold mb-2">Live Preview</h3>
+                            <p class="text-[#888784] text-sm">Debounced rendering + Ctrl+Enter. Error feedback directly
+                                in preview pane.</p>
                         </div>
-                        <div class="feature-card">
-                            <div class="feature-icon">📋</div>
-                            <h3>Copy HTML</h3>
-                            <p>Grab clean compiled HTML with one click, ready to use anywhere.</p>
+                        <div
+                            class="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6 hover:border-[#d4930a]/50 transition-all hover:-translate-y-1">
+                            <i class="fas fa-copy text-3xl text-[#d4930a] mb-4"></i>
+                            <h3 class="text-lg font-bold mb-2">Copy HTML</h3>
+                            <p class="text-[#888784] text-sm">Grab clean compiled HTML with one click, ready to use
+                                anywhere.</p>
                         </div>
-                        <div class="feature-card">
-                            <div class="feature-icon">🎨</div>
-                            <h3>Resizable Panes</h3>
-                            <p>Drag to adjust source/preview width. Sticky navbar always accessible.</p>
+                        <div
+                            class="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6 hover:border-[#d4930a]/50 transition-all hover:-translate-y-1">
+                            <i class="fas fa-arrows-alt text-3xl text-[#d4930a] mb-4"></i>
+                            <h3 class="text-lg font-bold mb-2">Resizable Panes</h3>
+                            <p class="text-[#888784] text-sm">Drag to adjust source/preview width. Sticky navbar always
+                                accessible.</p>
                         </div>
                     </div>
-                    <div class="repo-card">
-                        🌟 Open Source · Contribute & star →
-                        <a href="https://github.com/furqanRupom/pgv" target="_blank">github.com/furqanRupom/pgv</a>
+
+                    <!-- GitHub Repo Card -->
+                    <div class="bg-white/5 backdrop-blur-sm border border-white/10 rounded-full py-4 px-6 text-center">
+                        <span class="text-[#888784]">🌟 Open Source · Contribute & star →</span>
+                        <a href="https://github.com/furqanRupom/pgv" target="_blank"
+                            class="text-[#f0aa1e] font-mono hover:underline ml-2">
+                            <i class="fab fa-github"></i> github.com/furqanRupom/pgv
+                        </a>
                     </div>
-                    <div class="footer-landing">
-                        © <span id="landing-year"></span> Furqan Ahmad ·
-                        <a href="https://github.com/furqanRupom" target="_blank">@furqanRupom</a> · MIT License
+
+                    <!-- Footer -->
+                    <div class="text-center text-[#4e4d4a] text-xs py-6 border-t border-white/10">
+                        <i class="far fa-copyright"></i> <span id="landing-year"></span> Furqan Ahmad ·
+                        <a href="https://github.com/furqanRupom" target="_blank"
+                            class="text-[#d4930a] hover:text-[#f0aa1e]"><i class="fab fa-github"></i> @furqanRupom</a> ·
+                        MIT License
                     </div>
                 </div>
             </div>
 
             <!-- EDITOR VIEW -->
-            <div id="editor-view" class="view hidden">
-                <div class="editor-main">
-                    <div class="editor-toolbar">
-                        <div class="kbd-hint">Ctrl + Enter → render</div>
-                        <div class="kbd-hint">Tab → 2 spaces</div>
-                        <button class="btn" id="btn-copy">📋 Copy HTML</button>
-                        <button class="btn" id="btn-clear">🗑 Clear</button>
-                        <button class="btn btn-run" id="btn-run">▶ Render</button>
+            <div id="editor-view" class="view hidden absolute inset-0 flex flex-col bg-[#0f0f11]">
+                <!-- Editor Toolbar -->
+                <div
+                    class="flex items-center justify-end gap-3 px-6 py-3 bg-white/5 backdrop-blur-sm border-b border-white/10 flex-shrink-0">
+                    <div
+                        class="flex items-center gap-2 text-[10px] font-mono bg-black/30 backdrop-blur px-3 py-1.5 rounded-full border border-white/10">
+                        <i class="fas fa-keyboard text-[#d4930a]"></i> Ctrl + Enter → render
                     </div>
+                    <div
+                        class="flex items-center gap-2 text-[10px] font-mono bg-black/30 backdrop-blur px-3 py-1.5 rounded-full border border-white/10">
+                        <i class="fas fa-indent text-[#d4930a]"></i> Tab → 2 spaces
+                    </div>
+                    <button id="btn-copy"
+                        class="btn text-xs font-semibold px-4 py-1.5 rounded-full border border-white/20 bg-transparent text-[#888784] hover:bg-white/10 hover:text-white transition flex items-center gap-2">
+                        <i class="far fa-copy"></i> Copy HTML
+                    </button>
+                    <button id="btn-clear"
+                        class="btn text-xs font-semibold px-4 py-1.5 rounded-full border border-white/20 bg-transparent text-[#888784] hover:bg-white/10 hover:text-white transition flex items-center gap-2">
+                        <i class="fas fa-trash-alt"></i> Clear
+                    </button>
+                    <button id="btn-run"
+                        class="btn bg-[#d4930a] hover:bg-[#f0aa1e] text-black font-bold px-5 py-1.5 rounded-full transition-all flex items-center gap-2 shadow-md">
+                        <i class="fas fa-play"></i> Render
+                    </button>
+                </div>
 
-                    <div id="panes">
-                        <div class="pane" id="pane-left">
-                            <div class="pane-bar"><span class="pane-label">Source</span><span
-                                    class="pane-ext">.pug</span></div>
-                            <textarea id="editor" spellcheck="false">doctype html
+                <!-- Panes Container -->
+                <div id="panes" class="flex flex-1 overflow-hidden">
+                    <!-- Left Pane: Pug Editor -->
+                    <div id="pane-left" class="flex flex-col overflow-hidden min-w-[200px] flex-1">
+                        <div
+                            class="flex items-center justify-between px-4 py-2 bg-white/5 backdrop-blur-sm border-b border-white/10">
+                            <span class="text-[10px] font-bold uppercase tracking-wider text-[#4e4d4a]"><i
+                                    class="fas fa-pen-nib mr-1"></i> Source</span>
+                            <span
+                                class="font-mono text-[10px] text-[#d4930a] bg-[#d4930a]/10 px-2 py-0.5 rounded-full"><i
+                                    class="fab fa-pug"></i> .pug</span>
+                        </div>
+                        <textarea id="editor"
+                            class="flex-1 w-full px-5 py-4 bg-[#0f0f11] text-[#e8e6e0] font-mono text-[13.5px] outline-none resize-none border-none"
+                            spellcheck="false">doctype html
 html(lang="en")
   head
     title PGV — Demo with dynamic footer
@@ -717,47 +281,66 @@ html(lang="en")
         li #[strong 🧩 Indentation-based] — clean syntax
         li #[strong 📋 Copy HTML] — production ready
       footer
-        | © #{new Date().getFullYear()} Furqan Ahmad · 
+        | © 2026 Furqan Ahmad · 
         a(href="https://github.com/furqanRupom" target="_blank" style="color:#d4930a;") github.com/furqanRupom
       .footer(style="margin-top: 0.8rem; font-size: 9px; opacity:0.6;") PGV — Pug Viewer</textarea>
+                    </div>
+
+                    <!-- Divider -->
+                    <div id="divider" class="w-1 flex-shrink-0 bg-white/5 border-l border-r border-white/10"></div>
+
+                    <!-- Right Pane: Preview / Error -->
+                    <div id="pane-right" class="flex flex-col overflow-hidden flex-1">
+                        <div
+                            class="flex items-center justify-between px-4 py-2 bg-white/5 backdrop-blur-sm border-b border-white/10">
+                            <span class="text-[10px] font-bold uppercase tracking-wider text-[#4e4d4a]"><i
+                                    class="fas fa-eye mr-1"></i> Preview</span>
+                            <span
+                                class="font-mono text-[10px] text-[#d4930a] bg-[#d4930a]/10 px-2 py-0.5 rounded-full"><i
+                                    class="fab fa-html5"></i> .html</span>
                         </div>
-                        <div id="divider"></div>
-                        <div class="pane" id="pane-right">
-                            <div class="pane-bar"><span class="pane-label">Preview</span><span
-                                    class="pane-ext">.html</span></div>
-                            <div id="preview-wrap"><iframe id="preview-frame" sandbox="allow-scripts allow-same-origin"
-                                    title="preview"></iframe></div>
-                            <div id="error-box">
-                                <div class="err-inner">
-                                    <div class="err-label">Compile Error</div>
-                                    <pre id="error-msg"></pre>
-                                </div>
+                        <div id="preview-wrap" class="flex-1 overflow-hidden bg-white">
+                            <iframe id="preview-frame" class="w-full h-full border-none"
+                                sandbox="allow-scripts allow-same-origin" title="preview"></iframe>
+                        </div>
+                        <div id="error-box" class="flex-1 hidden p-5 bg-[#0f0f11] overflow-auto">
+                            <div class="bg-red-500/10 border border-red-500/30 rounded-xl p-4">
+                                <div class="text-[10px] font-bold uppercase tracking-wider text-[#e05c5c] mb-2"><i
+                                        class="fas fa-exclamation-triangle"></i> Compile Error</div>
+                                <pre id="error-msg" class="font-mono text-xs text-[#f09595] whitespace-pre-wrap"></pre>
                             </div>
                         </div>
                     </div>
+                </div>
 
-                    <div id="statusbar">
-                        <div class="status-left">
-                            <div class="si">
-                                <div class="dot ok" id="dot"></div><span id="st" class="ok">Ready</span>
-                            </div>
-                            <div class="si" id="li">0 lines</div>
-                            <div class="si" id="rt"></div>
-                            <div class="si" id="sz"></div>
+                <!-- Status Bar with footer credit -->
+                <div
+                    class="flex items-center justify-between px-5 py-1.5 bg-white/5 backdrop-blur-sm border-t border-white/10 text-[10px] font-mono text-[#4e4d4a] flex-shrink-0">
+                    <div class="flex items-center gap-5">
+                        <div class="flex items-center gap-2">
+                            <div class="dot w-2 h-2 rounded-full bg-[#4caf7d]" id="dot"></div>
+                            <span id="st" class="text-[#4caf7d]">Ready</span>
                         </div>
-                        <div class="footer-credit">
-                            <span>© <span id="year-dynamic"></span> Furqan Ahmad</span>
-                            <span>|</span>
-                            <a href="https://github.com/furqanRupom" target="_blank">@furqanRupom</a>
-                            <span>|</span>
-                            <a href="https://github.com/furqanRupom/pgv" target="_blank">⭐ pgv repo</a>
-                        </div>
+                        <div class="flex items-center gap-2" id="li"><i class="fas fa-code"></i> 0 lines</div>
+                        <div class="flex items-center gap-2" id="rt"><i class="fas fa-stopwatch"></i></div>
+                        <div class="flex items-center gap-2" id="sz"><i class="fas fa-database"></i></div>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <span><i class="far fa-copyright"></i> <span id="year-dynamic"></span> Furqan Ahmad</span>
+                        <a href="https://github.com/furqanRupom" target="_blank"
+                            class="text-[#d4930a] hover:text-[#f0aa1e]"><i class="fab fa-github"></i> @furqanRupom</a>
+                        <a href="https://github.com/furqanRupom/pgv" target="_blank"
+                            class="text-[#d4930a] hover:text-[#f0aa1e]"><i class="fas fa-star"></i> repo</a>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-    <div id="toast"></div>
+
+    <!-- Toast Notification -->
+    <div id="toast"
+        class="fixed bottom-8 left-1/2 -translate-x-1/2 translate-y-2 bg-black/80 backdrop-blur-lg border border-white/20 text-white font-mono text-xs px-5 py-2 rounded-full opacity-0 pointer-events-none z-[1000] whitespace-nowrap">
+    </div>
 
     <script>
         /* =====================================================
@@ -928,78 +511,92 @@ html(lang="en")
             return { compile };
         })();
 
-        // DOM and application state
-        const landingViewEl = document.getElementById('landing-view');
-        const editorViewEl = document.getElementById('editor-view');
+        // DOM elements
+        const landingView = document.getElementById('landing-view');
+        const editorView = document.getElementById('editor-view');
         const launchBtn = document.getElementById('launch-editor-btn');
         const navLanding = document.getElementById('nav-landing');
         const navEditor = document.getElementById('nav-editor');
         const navHomeTrigger = document.getElementById('nav-home-trigger');
         const editor = document.getElementById('editor');
-        const frameEl = document.getElementById('preview-frame');
+        const frame = document.getElementById('preview-frame');
         const previewWrap = document.getElementById('preview-wrap');
         const errorBox = document.getElementById('error-box');
         const errorMsgSpan = document.getElementById('error-msg');
-        const dotEl = document.getElementById('dot');
-        const stEl = document.getElementById('st');
-        const liEl = document.getElementById('li');
-        const rtEl = document.getElementById('rt');
-        const szEl = document.getElementById('sz');
-        const toastEl = document.getElementById('toast');
+        const dot = document.getElementById('dot');
+        const st = document.getElementById('st');
+        const li = document.getElementById('li');
+        const rt = document.getElementById('rt');
+        const sz = document.getElementById('sz');
+        const toast = document.getElementById('toast');
 
         let compiled = '';
         let timer = null;
 
         function setActiveView(view) {
             if (view === 'landing') {
-                landingViewEl.classList.remove('hidden');
-                editorViewEl.classList.add('hidden');
+                landingView.classList.add('hidden');
+                editorView.classList.add('hidden');
+                setTimeout(() => {
+                    landingView.classList.remove('hidden');
+                }, 10);
             } else {
-                landingViewEl.classList.add('hidden');
-                editorViewEl.classList.remove('hidden');
+                landingView.classList.add('hidden');
+                editorView.classList.remove('hidden');
                 render();
             }
-            // update active nav style (simple)
-            [navLanding, navEditor].forEach(n => n.classList.remove('active'));
-            if (view === 'landing') navLanding.classList.add('active');
-            else navEditor.classList.add('active');
+            [navLanding, navEditor].forEach(n => n.classList.remove('text-[#d4930a]', 'font-bold'));
+            if (view === 'landing') navLanding.classList.add('text-[#d4930a]', 'font-bold');
+            else navEditor.classList.add('text-[#d4930a]', 'font-bold');
         }
 
         function render() {
             const src = editor.value;
-            if (!src.trim()) { frameEl.srcdoc = ''; return; }
+            if (!src.trim()) { frame.srcdoc = ''; return; }
             try {
                 const t0 = performance.now();
                 compiled = PugParser.compile(src);
                 const ms = (performance.now() - t0).toFixed(1);
-                frameEl.srcdoc = compiled;
+                frame.srcdoc = compiled;
                 previewWrap.style.display = 'block';
                 errorBox.style.display = 'none';
                 setStatus('ok', 'OK');
-                rtEl.textContent = ms + ' ms';
-                szEl.textContent = fmtBytes(new Blob([compiled]).size);
+                rt.innerHTML = `<i class="fas fa-stopwatch"></i> ${ms} ms`;
+                sz.innerHTML = `<i class="fas fa-database"></i> ${fmtBytes(new Blob([compiled]).size)}`;
             } catch (e) {
                 compiled = '';
                 previewWrap.style.display = 'none';
                 errorBox.style.display = 'flex';
                 errorMsgSpan.textContent = e.message;
                 setStatus('err', 'Error');
-                rtEl.textContent = '';
-                szEl.textContent = '';
+                rt.textContent = '';
+                sz.textContent = '';
             }
             updateMeta();
         }
-        function setStatus(type, msg) { dotEl.className = 'dot ' + type; stEl.className = type; stEl.textContent = msg; }
-        function updateMeta() { const n = editor.value.split('\n').length; liEl.textContent = n + (n === 1 ? ' line' : ' lines'); }
-        function fmtBytes(b) { return b < 1024 ? b + ' B' : (b / 1024).toFixed(1) + ' KB'; }
-        function showToast(msg, err) {
-            toastEl.textContent = msg;
-            toastEl.style.background = err ? 'rgba(224,92,92,0.15)' : 'var(--bg3)';
-            toastEl.classList.add('show');
-            clearTimeout(window.toastTimer);
-            window.toastTimer = setTimeout(() => toastEl.classList.remove('show'), 2000);
+
+        function setStatus(type, msg) {
+            dot.className = `dot w-2 h-2 rounded-full ${type === 'ok' ? 'bg-[#4caf7d]' : 'bg-[#e05c5c]'}`;
+            st.className = type === 'ok' ? 'text-[#4caf7d]' : 'text-[#e05c5c]';
+            st.textContent = msg;
         }
 
+        function updateMeta() {
+            const n = editor.value.split('\n').length;
+            li.innerHTML = `<i class="fas fa-code"></i> ${n} ${n === 1 ? 'line' : 'lines'}`;
+        }
+
+        function fmtBytes(b) { return b < 1024 ? b + ' B' : (b / 1024).toFixed(1) + ' KB'; }
+
+        function showToast(msg, isErr) {
+            toast.textContent = msg;
+            toast.style.background = isErr ? 'rgba(224,92,92,0.9)' : 'rgba(0,0,0,0.85)';
+            toast.classList.add('show');
+            clearTimeout(window.toastTimer);
+            window.toastTimer = setTimeout(() => toast.classList.remove('show'), 2000);
+        }
+
+        // Event listeners
         editor.addEventListener('input', () => { updateMeta(); clearTimeout(timer); timer = setTimeout(render, 350); });
         editor.addEventListener('keydown', e => {
             if (e.key === 'Tab') {
@@ -1011,29 +608,33 @@ html(lang="en")
             }
             if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') { e.preventDefault(); clearTimeout(timer); render(); }
         });
+
         document.getElementById('btn-run').addEventListener('click', () => { clearTimeout(timer); render(); });
         document.getElementById('btn-copy').addEventListener('click', () => {
             if (!compiled) { showToast('Render first', true); return; }
             navigator.clipboard.writeText(compiled).then(() => showToast('Copied HTML ✓')).catch(() => { const ta = document.createElement('textarea'); ta.value = compiled; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta); showToast('Copied'); });
         });
-        document.getElementById('btn-clear').addEventListener('click', () => { editor.value = ''; compiled = ''; frameEl.srcdoc = ''; errorBox.style.display = 'none'; previewWrap.style.display = 'block'; setStatus('ok', 'Cleared'); rtEl.textContent = ''; szEl.textContent = ''; updateMeta(); });
+        document.getElementById('btn-clear').addEventListener('click', () => { editor.value = ''; compiled = ''; frame.srcdoc = ''; errorBox.style.display = 'none'; previewWrap.style.display = 'block'; setStatus('ok', 'Cleared'); rt.textContent = ''; sz.textContent = ''; updateMeta(); });
 
-        // divider drag
+        // Divider drag
         const divider = document.getElementById('divider');
         const paneLeft = document.getElementById('pane-left');
         const panesContainer = document.getElementById('panes');
         let dragging = false, startX = 0, startW = 0;
         divider.addEventListener('mousedown', e => { dragging = true; startX = e.clientX; startW = paneLeft.getBoundingClientRect().width; divider.classList.add('active'); document.body.style.cursor = 'col-resize'; e.preventDefault(); });
-        document.addEventListener('mousemove', e => { if (!dragging) return; const total = panesContainer.getBoundingClientRect().width - 5; let newW = Math.max(200, Math.min(total - 200, startW + (e.clientX - startX))); paneLeft.style.flex = 'none'; paneLeft.style.width = newW + 'px'; });
+        document.addEventListener('mousemove', e => { if (!dragging) return; const total = panesContainer.getBoundingClientRect().width - 4; let newW = Math.max(200, Math.min(total - 200, startW + (e.clientX - startX))); paneLeft.style.flex = 'none'; paneLeft.style.width = newW + 'px'; });
         document.addEventListener('mouseup', () => { if (dragging) { dragging = false; divider.classList.remove('active'); document.body.style.cursor = ''; } });
 
-        // navbar & navigation
+        // Navigation
         launchBtn.addEventListener('click', () => setActiveView('editor'));
         navLanding.addEventListener('click', () => setActiveView('landing'));
         navEditor.addEventListener('click', () => setActiveView('editor'));
         navHomeTrigger.addEventListener('click', () => setActiveView('landing'));
+
+        // Set dynamic years
         document.getElementById('landing-year').innerText = new Date().getFullYear();
         document.getElementById('year-dynamic').innerText = new Date().getFullYear();
+
         updateMeta();
         setActiveView('landing');
     </script>
