@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://furqanRupom.github.io/pgv/sitemap.xml
