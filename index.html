@@ -1,0 +1,1075 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PGV — Pug Viewer | Live Pug to HTML Compiler</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+        href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;1,400&family=Syne:wght@400;600;700;800&display=swap"
+        rel="stylesheet" />
+
+    <style>
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --bg: #0f0f11;
+            --bg2: #17171a;
+            --bg3: #1e1e22;
+            --bg4: #26262b;
+            --line: rgba(255, 255, 255, 0.07);
+            --line2: rgba(255, 255, 255, 0.13);
+            --text: #e8e6e0;
+            --text2: #888784;
+            --text3: #4e4d4a;
+            --accent: #d4930a;
+            --accent2: #f0aa1e;
+            --accent-bg: rgba(212, 147, 10, 0.13);
+            --green: #4caf7d;
+            --red: #e05c5c;
+            --red-bg: rgba(224, 92, 92, 0.1);
+            --mono: 'JetBrains Mono', monospace;
+            --sans: 'Syne', sans-serif;
+            --r: 8px;
+            --rl: 12px;
+        }
+
+        html,
+        body {
+            height: 100%;
+            overflow: hidden;
+            background: var(--bg);
+            color: var(--text);
+            font-family: var(--sans);
+        }
+
+        /* app wrapper */
+        #pgv {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        /* views */
+        .view {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            width: 100%;
+            transition: opacity 0.2s;
+        }
+
+        .view.hidden {
+            display: none;
+        }
+
+        /* landing page */
+        .landing {
+            background: radial-gradient(circle at 20% 30%, #141418, #0a0a0c);
+            overflow-y: auto;
+            padding: 2rem 1.5rem;
+        }
+
+        .landing-container {
+            max-width: 1100px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 3rem;
+        }
+
+        .hero {
+            text-align: center;
+            padding: 2rem 1rem 2rem;
+        }
+
+        .hero-badge {
+            display: inline-block;
+            background: var(--accent-bg);
+            color: var(--accent2);
+            font-family: var(--mono);
+            font-size: 12px;
+            padding: 4px 12px;
+            border-radius: 40px;
+            letter-spacing: 0.5px;
+            margin-bottom: 1.5rem;
+            border: 1px solid rgba(212, 147, 10, 0.25);
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            background: linear-gradient(135deg, #f5e7c8, #e0a21e);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-bottom: 1rem;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            color: var(--text2);
+            max-width: 600px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+
+        .btn-large {
+            background: var(--accent);
+            border: none;
+            padding: 12px 28px;
+            font-size: 1rem;
+            font-weight: 700;
+            font-family: var(--sans);
+            border-radius: 40px;
+            color: #111;
+            cursor: pointer;
+            transition: transform 0.2s, background 0.2s;
+            margin-top: 2rem;
+            box-shadow: 0 4px 12px rgba(212, 147, 10, 0.2);
+        }
+
+        .btn-large:hover {
+            background: var(--accent2);
+            transform: scale(1.02);
+        }
+
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 1.8rem;
+            margin: 1rem 0;
+        }
+
+        .feature-card {
+            background: rgba(23, 23, 26, 0.7);
+            backdrop-filter: blur(4px);
+            border: 1px solid var(--line);
+            border-radius: 24px;
+            padding: 1.6rem;
+            transition: all 0.2s;
+        }
+
+        .feature-card:hover {
+            border-color: var(--accent);
+            background: rgba(30, 30, 34, 0.9);
+        }
+
+        .feature-icon {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        .feature-card h3 {
+            font-size: 1.3rem;
+            margin-bottom: 0.6rem;
+        }
+
+        .feature-card p {
+            color: var(--text2);
+            line-height: 1.5;
+            font-size: 0.9rem;
+        }
+
+        .repo-link {
+            background: var(--bg3);
+            border-radius: 40px;
+            padding: 1rem 2rem;
+            text-align: center;
+            border: 1px solid var(--line2);
+        }
+
+        .repo-link a {
+            color: var(--accent2);
+            text-decoration: none;
+            font-family: var(--mono);
+            font-size: 1rem;
+            border-bottom: 1px dashed rgba(212, 147, 10, 0.5);
+        }
+
+        .repo-link a:hover {
+            color: var(--accent);
+            border-bottom-color: var(--accent);
+        }
+
+        .footer-landing {
+            margin-top: 2rem;
+            text-align: center;
+            padding: 1.5rem;
+            border-top: 1px solid var(--line);
+            color: var(--text3);
+            font-family: var(--mono);
+            font-size: 0.75rem;
+        }
+
+        .footer-landing a {
+            color: var(--accent);
+            text-decoration: none;
+        }
+
+        /* main app toolbar etc */
+        #toolbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 18px;
+            height: 52px;
+            flex-shrink: 0;
+            background: var(--bg2);
+            border-bottom: 1px solid var(--line);
+            gap: 12px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+        }
+
+        .logo-mark {
+            width: 32px;
+            height: 32px;
+            background: var(--accent);
+            border-radius: var(--r);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 17px;
+            flex-shrink: 0;
+        }
+
+        .logo-name {
+            font-size: 16px;
+            font-weight: 800;
+            letter-spacing: 0.07em;
+            color: var(--text);
+        }
+
+        .logo-sub {
+            font-family: var(--mono);
+            font-size: 10px;
+            color: var(--text3);
+        }
+
+        .toolbar-mid {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .kbd {
+            font-family: var(--mono);
+            font-size: 10px;
+            color: var(--text3);
+            background: var(--bg3);
+            border: 1px solid var(--line2);
+            padding: 2px 7px;
+            border-radius: 4px;
+        }
+
+        .toolbar-right {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .btn {
+            font-family: var(--sans);
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: 0.03em;
+            padding: 6px 14px;
+            border-radius: var(--r);
+            border: 1px solid var(--line2);
+            background: transparent;
+            color: var(--text2);
+            cursor: pointer;
+            transition: background .15s, color .15s;
+            white-space: nowrap;
+        }
+
+        .btn:hover {
+            background: var(--bg3);
+            color: var(--text);
+        }
+
+        .btn:active {
+            transform: scale(0.97);
+        }
+
+        .btn-run {
+            background: var(--accent);
+            color: #fff;
+            border-color: var(--accent);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-run:hover {
+            background: var(--accent2);
+            border-color: var(--accent2);
+            color: #111;
+        }
+
+        .btn-run svg {
+            width: 9px;
+            height: 9px;
+            fill: currentColor;
+        }
+
+        /* panes */
+        #panes {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        .pane {
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            min-width: 160px;
+        }
+
+        #pane-left {
+            flex: 1;
+        }
+
+        #pane-right {
+            flex: 1;
+        }
+
+        .pane-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 14px;
+            height: 34px;
+            flex-shrink: 0;
+            background: var(--bg2);
+            border-bottom: 1px solid var(--line);
+        }
+
+        .pane-label {
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--text3);
+        }
+
+        .pane-ext {
+            font-family: var(--mono);
+            font-size: 10px;
+            color: var(--accent);
+            background: var(--accent-bg);
+            border: 1px solid rgba(212, 147, 10, 0.22);
+            padding: 1px 8px;
+            border-radius: 20px;
+        }
+
+        /* editor */
+        #editor {
+            flex: 1;
+            width: 100%;
+            padding: 16px 18px;
+            font-family: var(--mono);
+            font-size: 13.5px;
+            line-height: 1.8;
+            background: var(--bg);
+            color: var(--text);
+            border: none;
+            outline: none;
+            resize: none;
+            tab-size: 2;
+            caret-color: var(--accent2);
+            letter-spacing: 0.01em;
+        }
+
+        #editor::selection {
+            background: rgba(212, 147, 10, 0.22);
+        }
+
+        /* divider */
+        #divider {
+            width: 5px;
+            flex-shrink: 0;
+            cursor: col-resize;
+            position: relative;
+            z-index: 2;
+            background: var(--bg2);
+            border-left: 1px solid var(--line);
+            border-right: 1px solid var(--line);
+            transition: background .15s;
+        }
+
+        #divider:hover,
+        #divider.active {
+            background: var(--accent-bg);
+            border-color: rgba(212, 147, 10, 0.3);
+        }
+
+        /* preview */
+        #preview-wrap {
+            flex: 1;
+            overflow: hidden;
+            background: #fff;
+        }
+
+        #preview-frame {
+            width: 100%;
+            height: 100%;
+            border: none;
+            display: block;
+            background: #fff;
+        }
+
+        /* error */
+        #error-box {
+            flex: 1;
+            display: none;
+            flex-direction: column;
+            padding: 20px;
+            background: var(--bg);
+            overflow: auto;
+        }
+
+        .err-inner {
+            background: var(--red-bg);
+            border: 1px solid rgba(224, 92, 92, 0.22);
+            border-radius: var(--rl);
+            padding: 16px 18px;
+        }
+
+        .err-label {
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--red);
+            margin-bottom: 8px;
+        }
+
+        #error-msg {
+            font-family: var(--mono);
+            font-size: 12.5px;
+            line-height: 1.7;
+            color: #f09595;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+
+        /* status bar (includes footer-like credit) */
+        #statusbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 18px;
+            height: 32px;
+            flex-shrink: 0;
+            background: var(--bg2);
+            border-top: 1px solid var(--line);
+        }
+
+        .status-left {
+            display: flex;
+            gap: 18px;
+            align-items: center;
+        }
+
+        .si {
+            font-family: var(--mono);
+            font-size: 11px;
+            color: var(--text3);
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--text3);
+        }
+
+        .dot.ok {
+            background: var(--green);
+        }
+
+        .dot.err {
+            background: var(--red);
+        }
+
+        #st {
+            color: var(--text2);
+        }
+
+        #st.ok {
+            color: var(--green);
+        }
+
+        #st.err {
+            color: var(--red);
+        }
+
+        .footer-credit {
+            font-family: var(--mono);
+            font-size: 10px;
+            color: var(--text3);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .footer-credit a {
+            color: var(--accent);
+            text-decoration: none;
+            border-bottom: 1px dotted rgba(212, 147, 10, 0.5);
+            transition: color 0.2s;
+        }
+
+        .footer-credit a:hover {
+            color: var(--accent2);
+        }
+
+        /* toast */
+        #toast {
+            position: fixed;
+            bottom: 48px;
+            left: 50%;
+            transform: translateX(-50%) translateY(8px);
+            background: var(--bg3);
+            border: 1px solid var(--line2);
+            color: var(--text);
+            font-family: var(--mono);
+            font-size: 12px;
+            padding: 8px 16px;
+            border-radius: var(--r);
+            opacity: 0;
+            transition: opacity .2s, transform .2s;
+            pointer-events: none;
+            z-index: 999;
+            white-space: nowrap;
+        }
+
+        #toast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--bg4);
+            border-radius: 3px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="pgv">
+        <!-- ==================== LANDING VIEW ==================== -->
+        <div id="landing-view" class="view landing">
+            <div class="landing-container">
+                <div class="hero">
+                    <div class="hero-badge">⚡ ZERO DEPENDENCY · PUG COMPILER</div>
+                    <h1>PGV · Pug Viewer</h1>
+                    <p>Live Pug (Jade) to HTML editor. Indentation-based templates, instant preview, dark mode, and
+                        copy-ready HTML.</p>
+                    <button id="launch-app-btn" class="btn-large">🚀 Launch Editor</button>
+                </div>
+
+                <div class="features">
+                    <div class="feature-card">
+                        <div class="feature-icon">🐾</div>
+                        <h3>Pure Pug Engine</h3>
+                        <p>Full parser in vanilla JS — doctype, tags, attributes, nesting, inline #[strong tags],
+                            style./script. blocks, mixin-like support.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">⚡</div>
+                        <h3>Live Preview</h3>
+                        <p>Renders as you type with debounce. Ctrl+Enter to force compile. Real-time error feedback.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">📋</div>
+                        <h3>Copy HTML</h3>
+                        <p>One-click copy compiled HTML. Clean, formatted output ready for production.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">🎨</div>
+                        <h3>Dark Minimal UI</h3>
+                        <p>Resizable panes, monospace editor, status bar with metrics. Fully keyboard friendly.</p>
+                    </div>
+                </div>
+
+                <div class="repo-link">
+                    📦 Open source · Contribute &amp; star on GitHub →
+                    <a href="https://github.com/furqanRupom/pgv" target="_blank"
+                        rel="noopener noreferrer">github.com/furqanRupom/pgv</a>
+                </div>
+
+                <div class="footer-landing">
+                    © <span id="landing-year"></span> Furqan Ahmad ·
+                    <a href="https://github.com/furqanRupom" target="_blank">@furqanRupom</a> ·
+                    Built with 🖤 for the dev community
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== EDITOR VIEW ==================== -->
+        <div id="editor-view" class="view hidden">
+            <div id="toolbar">
+                <div class="logo" id="back-home-btn">
+                    <div class="logo-mark">🐾</div>
+                    <div>
+                        <div class="logo-name">PGV</div>
+                        <div class="logo-sub">Pug Viewer</div>
+                    </div>
+                </div>
+                <div class="toolbar-mid">
+                    <span class="kbd">Ctrl + Enter</span>
+                    <span class="kbd-lbl" style="font-size:10px; color:#888;">&nbsp;render ·&nbsp;</span>
+                    <span class="kbd">Tab</span>
+                    <span class="kbd-lbl" style="font-size:10px; color:#888;">indent</span>
+                </div>
+                <div class="toolbar-right">
+                    <button class="btn" id="btn-copy">Copy HTML</button>
+                    <button class="btn" id="btn-clear">Clear</button>
+                    <button class="btn btn-run" id="btn-run">
+                        <svg viewBox="0 0 9 9">
+                            <polygon points="0,0 9,4.5 0,9" />
+                        </svg>
+                        Render
+                    </button>
+                </div>
+            </div>
+
+            <div id="panes">
+                <div class="pane" id="pane-left">
+                    <div class="pane-bar">
+                        <span class="pane-label">Source</span>
+                        <span class="pane-ext">.pug</span>
+                    </div>
+                    <textarea id="editor" spellcheck="false" autocomplete="off" autocorrect="off" autocapitalize="off">doctype html
+html(lang="en")
+  head
+    title PGV — dynamic demo
+    style.
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      body {
+        font-family: 'Segoe UI', system-ui;
+        background: #0f0f11;
+        color: #e8e6e0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        padding: 2rem;
+      }
+      .card {
+        background: #17171a;
+        border-radius: 28px;
+        padding: 2rem;
+        max-width: 540px;
+        border: 1px solid rgba(255,255,255,0.1);
+      }
+      .accent { color: #d4930a; }
+      footer { margin-top: 2rem; font-size: 0.75rem; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 1rem; color: #777; }
+  body
+    .card
+      h1 ✨ PGV #[span.accent Live Preview]
+      p Write Pug on the left → instantly see HTML on the right.
+      ul
+        li #[strong ⚡ Fast] Zero-dependency parser
+        li #[strong 🧩 Mixins] and includes ready
+        li #[strong 📋 Copy HTML] + status metrics
+      footer
+        | © 2026 Furqan Ahmad · 
+        a(href="https://github.com/furqanRupom" target="_blank" style="color:#d4930a;") github.com/furqanRupom
+      .footer(style="margin-top: 0.8rem; font-size: 10px;") PGV — Pug Viewer</textarea>
+                </div>
+
+                <div id="divider"></div>
+
+                <div class="pane" id="pane-right">
+                    <div class="pane-bar">
+                        <span class="pane-label">Preview</span>
+                        <span class="pane-ext">.html</span>
+                    </div>
+                    <div id="preview-wrap">
+                        <iframe id="preview-frame" sandbox="allow-scripts allow-same-origin"
+                            title="pug preview"></iframe>
+                    </div>
+                    <div id="error-box">
+                        <div class="err-inner">
+                            <div class="err-label">Compile Error</div>
+                            <pre id="error-msg"></pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="statusbar">
+                <div class="status-left">
+                    <div class="si">
+                        <div class="dot ok" id="dot"></div><span id="st" class="ok">Ready</span>
+                    </div>
+                    <div class="si" id="li">0 lines</div>
+                    <div class="si" id="rt"></div>
+                    <div class="si" id="sz"></div>
+                </div>
+                <div class="footer-credit">
+                    <span>© <span id="year-dynamic"></span> Furqan Ahmad</span>
+                    <span>|</span>
+                    <a href="https://github.com/furqanRupom" target="_blank"
+                        rel="noopener noreferrer">github.com/furqanRupom</a>
+                    <span>|</span>
+                    <a href="https://github.com/furqanRupom/pgv" target="_blank">⭐ repo</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast"></div>
+
+    <script>
+        /* =====================================================
+           ZERO-DEPENDENCY PUG PARSER (supports doctype, tags, id/class, attrs, inline,
+           style./script. blocks, text blocks, comments, etc)
+        ===================================================== */
+        const PugParser = (() => {
+            const VOID = new Set(['area', 'base', 'br', 'col', 'embed', 'hr', 'img', 'input', 'link', 'meta', 'param', 'source', 'track', 'wbr']);
+
+            function indent(line) {
+                let n = 0;
+                for (const c of line) {
+                    if (c === ' ') n++;
+                    else if (c === '\t') n += 2;
+                    else break;
+                }
+                return n;
+            }
+
+            function parseAttrs(raw) {
+                const parts = [];
+                let cur = '', inStr = false, strCh = '';
+                for (const c of raw) {
+                    if (!inStr && (c === '"' || c === "'")) { inStr = true; strCh = c; cur += c; }
+                    else if (inStr && c === strCh) { inStr = false; cur += c; }
+                    else if (!inStr && c === ',') { parts.push(cur.trim()); cur = ''; }
+                    else { cur += c; }
+                }
+                if (cur.trim()) parts.push(cur.trim());
+
+                return parts.map(p => {
+                    const eq = p.indexOf('=');
+                    if (eq === -1) return p.trim();
+                    const key = p.slice(0, eq).trim();
+                    let val = p.slice(eq + 1).trim();
+                    if ((val[0] === '"' || val[0] === "'") && val[val.length - 1] === val[0]) val = val.slice(1, -1);
+                    return key + '="' + val.replace(/"/g, '&quot;') + '"';
+                }).join(' ');
+            }
+
+            function inlineTags(text) {
+                return text.replace(/#\[([^\]]+)\]/g, (_, inner) => {
+                    inner = inner.trim();
+                    const m = inner.match(/^([a-zA-Z][a-zA-Z0-9-]*)([.#][^\s(]*)?((?:\([^)]*\)))?\s*(.*)?$/s);
+                    if (!m) return inner;
+                    const [, tag, sel = '', rawAttrs, content = ''] = m;
+                    let id = '', cls = [];
+                    (sel.match(/[.#][^.#]*/g) || []).forEach(s => {
+                        if (s[0] === '#') id = s.slice(1); else cls.push(s.slice(1));
+                    });
+                    let a = '';
+                    if (id) a += ' id="' + id + '"';
+                    if (cls.length) a += ' class="' + cls.join(' ') + '"';
+                    if (rawAttrs) a += ' ' + parseAttrs(rawAttrs.slice(1, -1));
+                    return '<' + tag + a + '>' + content + '</' + tag + '>';
+                });
+            }
+
+            function parseTag(line) {
+                let rest = line.trim();
+                if (!rest || rest.startsWith('//')) return null;
+                if (/^doctype\b/i.test(rest)) {
+                    const t = rest.replace(/^doctype\s*/i, '').trim();
+                    return { html: (!t || t === 'html') ? '<!DOCTYPE html>' : '<!DOCTYPE ' + t + '>', leaf: true };
+                }
+                if (rest.startsWith('| ')) return { html: inlineTags(rest.slice(2)), leaf: true };
+                if (rest === '|') return { html: '', leaf: true };
+
+                let tag = 'div', id = '', cls = [], attrRaw = '', inlineText = '', blockText = false;
+                const tagM = rest.match(/^([a-zA-Z][a-zA-Z0-9:-]*)/);
+                if (tagM) { tag = tagM[1]; rest = rest.slice(tag.length); }
+
+                while (true) {
+                    const c = rest.match(/^\.(-?[_a-zA-Z][_a-zA-Z0-9-]*)/);
+                    if (c) { cls.push(c[1]); rest = rest.slice(c[0].length); continue; }
+                    const d = rest.match(/^#(-?[_a-zA-Z][_a-zA-Z0-9-]*)/);
+                    if (d) { id = d[1]; rest = rest.slice(d[0].length); continue; }
+                    break;
+                }
+
+                if (rest.startsWith('(')) {
+                    let depth = 0, j = 0, inS = false, sc = '';
+                    for (; j < rest.length; j++) {
+                        const c = rest[j];
+                        if (!inS && (c === '"' || c === "'")) { inS = true; sc = c; }
+                        else if (inS && c === sc) inS = false;
+                        else if (!inS && c === '(') depth++;
+                        else if (!inS && c === ')') { depth--; if (!depth) { j++; break; } }
+                    }
+                    attrRaw = rest.slice(1, j - 1);
+                    rest = rest.slice(j);
+                }
+
+                if (rest === '.' || /^\.\s*$/.test(rest)) { blockText = true; rest = ''; }
+                if (!blockText && (rest.startsWith(' ') || rest.startsWith('\t'))) {
+                    inlineText = inlineTags(rest.trimStart());
+                }
+
+                let attrOut = '';
+                if (id) attrOut += ' id="' + id + '"';
+                if (cls.length) attrOut += ' class="' + cls.join(' ') + '"';
+                if (attrRaw) { const parsed = parseAttrs(attrRaw); if (parsed) attrOut += ' ' + parsed; }
+
+                if (VOID.has(tag)) return { html: '<' + tag + attrOut + '>', leaf: true };
+                const open = '<' + tag + attrOut + '>';
+                const close = '</' + tag + '>';
+                if (inlineText) return { html: open + inlineText + close, leaf: true };
+                return { open, close, blockText, leaf: false };
+            }
+
+            function compile(src) {
+                if (!src.trim()) return '';
+                const lines = src.split('\n');
+                const out = [];
+                let i = 0;
+                function firstNonBlank(from) { for (let k = from; k < lines.length; k++) if (lines[k].trim()) return k; return lines.length; }
+                function walk(base) {
+                    while (i < lines.length) {
+                        const raw = lines[i];
+                        if (!raw.trim()) { i++; continue; }
+                        const myInd = indent(raw);
+                        if (myInd < base) return;
+                        if (myInd > base) { i++; continue; }
+                        const line = raw.trim();
+                        if (line.startsWith('//')) { i++; continue; }
+                        if (/^style\.\s*$/.test(line)) {
+                            i++; const content = [];
+                            while (i < lines.length) {
+                                const nx = lines[i];
+                                if (!nx.trim()) { content.push(''); i++; continue; }
+                                if (indent(nx) <= myInd) break;
+                                content.push(nx.slice(myInd + 2));
+                                i++;
+                            }
+                            out.push('<style>' + content.join('\n') + '</style>');
+                            continue;
+                        }
+                        if (/^script\.\s*$/.test(line)) {
+                            i++; const content = [];
+                            while (i < lines.length) {
+                                const nx = lines[i];
+                                if (!nx.trim()) { content.push(''); i++; continue; }
+                                if (indent(nx) <= myInd) break;
+                                content.push(nx.slice(myInd + 2));
+                                i++;
+                            }
+                            out.push('<script>' + content.join('\n') + '<\/script>');
+                            continue;
+                        }
+                        i++;
+                        const parsed = parseTag(line);
+                        if (!parsed) continue;
+                        if (parsed.leaf) { out.push(parsed.html); continue; }
+                        const { open, close, blockText } = parsed;
+                        const nextI = firstNonBlank(i);
+                        const childInd = nextI < lines.length ? indent(lines[nextI]) : -1;
+                        if (blockText) {
+                            const textLines = [];
+                            while (i < lines.length) {
+                                const nx = lines[i];
+                                if (!nx.trim()) { textLines.push(''); i++; continue; }
+                                if (indent(nx) <= myInd) break;
+                                textLines.push(nx.slice(myInd + 2));
+                                i++;
+                            }
+                            out.push(open + textLines.join('\n') + close);
+                            continue;
+                        }
+                        if (childInd > myInd) { out.push(open); walk(childInd); out.push(close); }
+                        else { out.push(open + close); }
+                    }
+                }
+                const firstLine = firstNonBlank(0);
+                const baseInd = firstLine < lines.length ? indent(lines[firstLine]) : 0;
+                walk(baseInd);
+                return out.join('\n');
+            }
+            return { compile };
+        })();
+
+        // APP STATE
+        const landingView = document.getElementById('landing-view');
+        const editorView = document.getElementById('editor-view');
+        const launchBtn = document.getElementById('launch-app-btn');
+        const backHomeBtn = document.getElementById('back-home-btn');
+        const editor = document.getElementById('editor');
+        const frame = document.getElementById('preview-frame');
+        const previewWrap = document.getElementById('preview-wrap');
+        const errorBox = document.getElementById('error-box');
+        const errorMsgSpan = document.getElementById('error-msg');
+        const dotEl = document.getElementById('dot');
+        const stEl = document.getElementById('st');
+        const liEl = document.getElementById('li');
+        const rtEl = document.getElementById('rt');
+        const szEl = document.getElementById('sz');
+        const toastEl = document.getElementById('toast');
+
+        let compiled = '';
+        let timer = null;
+
+        function setView(view) {
+            if (view === 'landing') {
+                landingView.classList.remove('hidden');
+                editorView.classList.add('hidden');
+            } else {
+                landingView.classList.add('hidden');
+                editorView.classList.remove('hidden');
+                render(); // ensure preview after showing
+            }
+        }
+
+        function render() {
+            const src = editor.value;
+            if (!src.trim()) { frame.srcdoc = ''; return; }
+            try {
+                compiled = PugParser.compile(src);
+                frame.srcdoc = compiled;
+                previewWrap.style.display = 'block';
+                errorBox.style.display = 'none';
+                setStatus('ok', 'OK');
+                rtEl.textContent = (performance.now() - window._rtMark || 0).toFixed(1) + ' ms';
+                szEl.textContent = fmtBytes(new Blob([compiled]).size);
+                window._rtMark = null;
+            } catch (e) {
+                compiled = '';
+                previewWrap.style.display = 'none';
+                errorBox.style.display = 'flex';
+                errorMsgSpan.textContent = e.message;
+                setStatus('err', 'Error');
+                rtEl.textContent = '';
+                szEl.textContent = '';
+            }
+            updateMeta();
+        }
+
+        function setStatus(type, msg) {
+            dotEl.className = 'dot ' + type;
+            stEl.className = type;
+            stEl.textContent = msg;
+        }
+        function updateMeta() {
+            const n = editor.value.split('\n').length;
+            liEl.textContent = n + (n === 1 ? ' line' : ' lines');
+        }
+        function fmtBytes(b) { return b < 1024 ? b + ' B' : (b / 1024).toFixed(1) + ' KB'; }
+        function showToast(msg, err) {
+            toastEl.textContent = msg;
+            toastEl.style.background = err ? 'rgba(224,92,92,0.15)' : 'var(--bg3)';
+            toastEl.style.color = err ? '#f09595' : 'var(--text)';
+            toastEl.classList.add('show');
+            clearTimeout(window.toastTimer);
+            window.toastTimer = setTimeout(() => toastEl.classList.remove('show'), 2200);
+        }
+
+        editor.addEventListener('input', () => {
+            updateMeta();
+            clearTimeout(timer);
+            window._rtMark = performance.now();
+            timer = setTimeout(render, 380);
+        });
+        editor.addEventListener('keydown', e => {
+            if (e.key === 'Tab') {
+                e.preventDefault();
+                const s = editor.selectionStart, en = editor.selectionEnd;
+                editor.value = editor.value.slice(0, s) + '  ' + editor.value.slice(en);
+                editor.selectionStart = editor.selectionEnd = s + 2;
+                updateMeta();
+                clearTimeout(timer);
+                timer = setTimeout(render, 380);
+            }
+            if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+                e.preventDefault();
+                clearTimeout(timer);
+                window._rtMark = performance.now();
+                render();
+            }
+        });
+
+        document.getElementById('btn-run').addEventListener('click', () => { clearTimeout(timer); window._rtMark = performance.now(); render(); });
+        document.getElementById('btn-copy').addEventListener('click', () => {
+            if (!compiled) { showToast('Nothing to copy', true); return; }
+            navigator.clipboard.writeText(compiled).then(() => showToast('HTML copied ✓')).catch(() => { const ta = document.createElement('textarea'); ta.value = compiled; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta); showToast('Copied'); });
+        });
+        document.getElementById('btn-clear').addEventListener('click', () => {
+            editor.value = ''; compiled = ''; frame.srcdoc = ''; errorBox.style.display = 'none'; previewWrap.style.display = 'block';
+            setStatus('ok', 'Cleared'); rtEl.textContent = ''; szEl.textContent = ''; updateMeta(); showToast('Cleared');
+        });
+
+        // divider drag
+        const divider = document.getElementById('divider');
+        const paneLeft = document.getElementById('pane-left');
+        const panesEl = document.getElementById('panes');
+        let drag = false, dx0 = 0, dw0 = 0;
+        divider.addEventListener('mousedown', e => {
+            drag = true; dx0 = e.clientX; dw0 = paneLeft.getBoundingClientRect().width;
+            divider.classList.add('active');
+            document.body.style.cursor = 'col-resize';
+            e.preventDefault();
+        });
+        document.addEventListener('mousemove', e => {
+            if (!drag) return;
+            const total = panesEl.getBoundingClientRect().width - 5;
+            let w = Math.max(180, Math.min(total - 180, dw0 + e.clientX - dx0));
+            paneLeft.style.flex = 'none'; paneLeft.style.width = w + 'px';
+        });
+        document.addEventListener('mouseup', () => { if (drag) { drag = false; divider.classList.remove('active'); document.body.style.cursor = ''; } });
+
+        // year insert
+        document.getElementById('year-dynamic').innerText = new Date().getFullYear();
+        document.getElementById('landing-year').innerText = new Date().getFullYear();
+        launchBtn.addEventListener('click', () => setView('editor'));
+        backHomeBtn.addEventListener('click', () => setView('landing'));
+
+        updateMeta();
+        render();
+    </script>
+</body>
+
+</html>
