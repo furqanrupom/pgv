@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>PGV — Pug Viewer | Live Pug to HTML Compiler</title>
+    <title>PGV — Pug Viewer | Modern Pug to HTML Compiler</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -40,15 +40,16 @@
             --sans: 'Syne', sans-serif;
             --r: 8px;
             --rl: 12px;
+            --shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.3);
         }
 
         html,
         body {
             height: 100%;
-            overflow: hidden;
             background: var(--bg);
             color: var(--text);
             font-family: var(--sans);
+            overflow: hidden;
         }
 
         /* app wrapper */
@@ -56,22 +57,135 @@
             display: flex;
             flex-direction: column;
             height: 100vh;
+            overflow: hidden;
         }
 
-        /* views */
-        .view {
+        /* ========= STICKY NAVBAR (UNIVERSAL) ========= */
+        .sticky-nav {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(23, 23, 26, 0.92);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--line);
+            padding: 0 24px;
             display: flex;
-            flex-direction: column;
-            height: 100%;
-            width: 100%;
+            align-items: center;
+            justify-content: space-between;
+            height: 56px;
+            flex-shrink: 0;
+            transition: all 0.2s;
+        }
+
+        .nav-logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
             transition: opacity 0.2s;
         }
 
-        .view.hidden {
-            display: none;
+        .nav-logo:hover {
+            opacity: 0.85;
         }
 
-        /* landing page */
+        .logo-icon {
+            width: 34px;
+            height: 34px;
+            background: var(--accent);
+            border-radius: var(--r);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+        .logo-text {
+            font-weight: 800;
+            font-size: 1.2rem;
+            letter-spacing: -0.3px;
+            background: linear-gradient(135deg, #f5e7c8, #e0a21e);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .logo-sub {
+            font-family: var(--mono);
+            font-size: 9px;
+            color: var(--text3);
+            margin-left: 2px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 24px;
+            align-items: center;
+        }
+
+        .nav-link {
+            color: var(--text2);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: color 0.2s;
+            font-family: var(--sans);
+            cursor: pointer;
+            padding: 6px 0;
+            border-bottom: 2px solid transparent;
+        }
+
+        .nav-link:hover {
+            color: var(--accent2);
+            border-bottom-color: var(--accent2);
+        }
+
+        .nav-link.active {
+            color: var(--accent);
+            border-bottom-color: var(--accent);
+        }
+
+        .nav-repo {
+            background: rgba(212, 147, 10, 0.12);
+            padding: 6px 14px;
+            border-radius: 40px;
+            font-family: var(--mono);
+            font-size: 12px;
+            font-weight: 500;
+            transition: background 0.2s;
+        }
+
+        .nav-repo:hover {
+            background: rgba(212, 147, 10, 0.25);
+            color: var(--accent2);
+        }
+
+        /* views container */
+        .views-container {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .view {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            transition: opacity 0.25s ease, visibility 0.25s;
+            opacity: 1;
+            visibility: visible;
+            overflow-y: auto;
+        }
+
+        .view.hidden {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+
+        /* LANDING PAGE */
         .landing {
             background: radial-gradient(circle at 20% 30%, #141418, #0a0a0c);
             overflow-y: auto;
@@ -88,7 +202,7 @@
 
         .hero {
             text-align: center;
-            padding: 2rem 1rem 2rem;
+            padding: 2rem 1rem 1rem;
         }
 
         .hero-badge {
@@ -99,9 +213,8 @@
             font-size: 12px;
             padding: 4px 12px;
             border-radius: 40px;
-            letter-spacing: 0.5px;
             margin-bottom: 1.5rem;
-            border: 1px solid rgba(212, 147, 10, 0.25);
+            border: 1px solid rgba(212, 147, 10, 0.3);
         }
 
         .hero h1 {
@@ -118,7 +231,7 @@
         .hero p {
             font-size: 1.2rem;
             color: var(--text2);
-            max-width: 600px;
+            max-width: 620px;
             margin: 0 auto;
             line-height: 1.6;
         }
@@ -129,13 +242,12 @@
             padding: 12px 28px;
             font-size: 1rem;
             font-weight: 700;
-            font-family: var(--sans);
             border-radius: 40px;
             color: #111;
             cursor: pointer;
             transition: transform 0.2s, background 0.2s;
             margin-top: 2rem;
-            box-shadow: 0 4px 12px rgba(212, 147, 10, 0.2);
+            box-shadow: 0 4px 12px rgba(212, 147, 10, 0.25);
         }
 
         .btn-large:hover {
@@ -170,17 +282,17 @@
         }
 
         .feature-card h3 {
-            font-size: 1.3rem;
-            margin-bottom: 0.6rem;
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
         }
 
         .feature-card p {
             color: var(--text2);
-            line-height: 1.5;
             font-size: 0.9rem;
+            line-height: 1.5;
         }
 
-        .repo-link {
+        .repo-card {
             background: var(--bg3);
             border-radius: 40px;
             padding: 1rem 2rem;
@@ -188,17 +300,10 @@
             border: 1px solid var(--line2);
         }
 
-        .repo-link a {
+        .repo-card a {
             color: var(--accent2);
             text-decoration: none;
             font-family: var(--mono);
-            font-size: 1rem;
-            border-bottom: 1px dashed rgba(212, 147, 10, 0.5);
-        }
-
-        .repo-link a:hover {
-            color: var(--accent);
-            border-bottom-color: var(--accent);
         }
 
         .footer-landing {
@@ -207,130 +312,17 @@
             padding: 1.5rem;
             border-top: 1px solid var(--line);
             color: var(--text3);
-            font-family: var(--mono);
             font-size: 0.75rem;
         }
 
-        .footer-landing a {
-            color: var(--accent);
-            text-decoration: none;
-        }
-
-        /* main app toolbar etc */
-        #toolbar {
+        /* EDITOR LAYOUT */
+        .editor-main {
             display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 18px;
-            height: 52px;
-            flex-shrink: 0;
-            background: var(--bg2);
-            border-bottom: 1px solid var(--line);
-            gap: 12px;
+            flex-direction: column;
+            height: 100%;
+            background: var(--bg);
         }
 
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            cursor: pointer;
-        }
-
-        .logo-mark {
-            width: 32px;
-            height: 32px;
-            background: var(--accent);
-            border-radius: var(--r);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 17px;
-            flex-shrink: 0;
-        }
-
-        .logo-name {
-            font-size: 16px;
-            font-weight: 800;
-            letter-spacing: 0.07em;
-            color: var(--text);
-        }
-
-        .logo-sub {
-            font-family: var(--mono);
-            font-size: 10px;
-            color: var(--text3);
-        }
-
-        .toolbar-mid {
-            flex: 1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 6px;
-        }
-
-        .kbd {
-            font-family: var(--mono);
-            font-size: 10px;
-            color: var(--text3);
-            background: var(--bg3);
-            border: 1px solid var(--line2);
-            padding: 2px 7px;
-            border-radius: 4px;
-        }
-
-        .toolbar-right {
-            display: flex;
-            gap: 8px;
-            align-items: center;
-        }
-
-        .btn {
-            font-family: var(--sans);
-            font-size: 12px;
-            font-weight: 600;
-            letter-spacing: 0.03em;
-            padding: 6px 14px;
-            border-radius: var(--r);
-            border: 1px solid var(--line2);
-            background: transparent;
-            color: var(--text2);
-            cursor: pointer;
-            transition: background .15s, color .15s;
-            white-space: nowrap;
-        }
-
-        .btn:hover {
-            background: var(--bg3);
-            color: var(--text);
-        }
-
-        .btn:active {
-            transform: scale(0.97);
-        }
-
-        .btn-run {
-            background: var(--accent);
-            color: #fff;
-            border-color: var(--accent);
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .btn-run:hover {
-            background: var(--accent2);
-            border-color: var(--accent2);
-            color: #111;
-        }
-
-        .btn-run svg {
-            width: 9px;
-            height: 9px;
-            fill: currentColor;
-        }
-
-        /* panes */
         #panes {
             display: flex;
             flex: 1;
@@ -381,7 +373,6 @@
             border-radius: 20px;
         }
 
-        /* editor */
         #editor {
             flex: 1;
             width: 100%;
@@ -396,24 +387,20 @@
             resize: none;
             tab-size: 2;
             caret-color: var(--accent2);
-            letter-spacing: 0.01em;
         }
 
         #editor::selection {
             background: rgba(212, 147, 10, 0.22);
         }
 
-        /* divider */
         #divider {
             width: 5px;
             flex-shrink: 0;
             cursor: col-resize;
-            position: relative;
-            z-index: 2;
             background: var(--bg2);
             border-left: 1px solid var(--line);
             border-right: 1px solid var(--line);
-            transition: background .15s;
+            transition: background 0.15s;
         }
 
         #divider:hover,
@@ -422,7 +409,6 @@
             border-color: rgba(212, 147, 10, 0.3);
         }
 
-        /* preview */
         #preview-wrap {
             flex: 1;
             overflow: hidden;
@@ -434,14 +420,12 @@
             height: 100%;
             border: none;
             display: block;
-            background: #fff;
+            background: white;
         }
 
-        /* error */
         #error-box {
             flex: 1;
             display: none;
-            flex-direction: column;
             padding: 20px;
             background: var(--bg);
             overflow: auto;
@@ -466,13 +450,11 @@
         #error-msg {
             font-family: var(--mono);
             font-size: 12.5px;
-            line-height: 1.7;
             color: #f09595;
             white-space: pre-wrap;
-            word-break: break-word;
         }
 
-        /* status bar (includes footer-like credit) */
+        /* status bar */
         #statusbar {
             display: flex;
             align-items: center;
@@ -539,14 +521,8 @@
             color: var(--accent);
             text-decoration: none;
             border-bottom: 1px dotted rgba(212, 147, 10, 0.5);
-            transition: color 0.2s;
         }
 
-        .footer-credit a:hover {
-            color: var(--accent2);
-        }
-
-        /* toast */
         #toast {
             position: fixed;
             bottom: 48px;
@@ -560,9 +536,9 @@
             padding: 8px 16px;
             border-radius: var(--r);
             opacity: 0;
-            transition: opacity .2s, transform .2s;
+            transition: opacity 0.2s, transform 0.2s;
             pointer-events: none;
-            z-index: 999;
+            z-index: 1000;
             white-space: nowrap;
         }
 
@@ -571,112 +547,146 @@
             transform: translateX(-50%) translateY(0);
         }
 
-        ::-webkit-scrollbar {
-            width: 6px;
-            height: 6px;
+        /* toolbar inside editor (actions) */
+        .editor-toolbar {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 8px;
+            padding: 8px 18px;
+            background: var(--bg2);
+            border-bottom: 1px solid var(--line);
+            flex-shrink: 0;
         }
 
-        ::-webkit-scrollbar-track {
+        .btn {
+            font-family: var(--sans);
+            font-size: 12px;
+            font-weight: 600;
+            padding: 5px 14px;
+            border-radius: var(--r);
+            border: 1px solid var(--line2);
             background: transparent;
+            color: var(--text2);
+            cursor: pointer;
+            transition: background 0.15s;
         }
 
-        ::-webkit-scrollbar-thumb {
-            background: var(--bg4);
-            border-radius: 3px;
+        .btn:hover {
+            background: var(--bg3);
+            color: var(--text);
+        }
+
+        .btn-run {
+            background: var(--accent);
+            color: #fff;
+            border-color: var(--accent);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-run:hover {
+            background: var(--accent2);
+            color: #111;
+        }
+
+        .kbd-hint {
+            font-family: var(--mono);
+            font-size: 9px;
+            background: var(--bg3);
+            border: 1px solid var(--line2);
+            padding: 2px 6px;
+            border-radius: 4px;
+            margin-left: 12px;
         }
     </style>
 </head>
 
 <body>
-
     <div id="pgv">
-        <!-- ==================== LANDING VIEW ==================== -->
-        <div id="landing-view" class="view landing">
-            <div class="landing-container">
-                <div class="hero">
-                    <div class="hero-badge">⚡ ZERO DEPENDENCY · PUG COMPILER</div>
-                    <h1>PGV · Pug Viewer</h1>
-                    <p>Live Pug (Jade) to HTML editor. Indentation-based templates, instant preview, dark mode, and
-                        copy-ready HTML.</p>
-                    <button id="launch-app-btn" class="btn-large">🚀 Launch Editor</button>
+        <!-- STICKY NAVBAR (shared across views) -->
+        <div class="sticky-nav">
+            <div class="nav-logo" id="nav-home-trigger">
+                <div class="logo-icon">🐾</div>
+                <div>
+                    <span class="logo-text">PGV</span>
+                    <span class="logo-sub">Pug Viewer</span>
                 </div>
-
-                <div class="features">
-                    <div class="feature-card">
-                        <div class="feature-icon">🐾</div>
-                        <h3>Pure Pug Engine</h3>
-                        <p>Full parser in vanilla JS — doctype, tags, attributes, nesting, inline #[strong tags],
-                            style./script. blocks, mixin-like support.</p>
-                    </div>
-                    <div class="feature-card">
-                        <div class="feature-icon">⚡</div>
-                        <h3>Live Preview</h3>
-                        <p>Renders as you type with debounce. Ctrl+Enter to force compile. Real-time error feedback.</p>
-                    </div>
-                    <div class="feature-card">
-                        <div class="feature-icon">📋</div>
-                        <h3>Copy HTML</h3>
-                        <p>One-click copy compiled HTML. Clean, formatted output ready for production.</p>
-                    </div>
-                    <div class="feature-card">
-                        <div class="feature-icon">🎨</div>
-                        <h3>Dark Minimal UI</h3>
-                        <p>Resizable panes, monospace editor, status bar with metrics. Fully keyboard friendly.</p>
-                    </div>
-                </div>
-
-                <div class="repo-link">
-                    📦 Open source · Contribute &amp; star on GitHub →
-                    <a href="https://github.com/furqanRupom/pgv" target="_blank"
-                        rel="noopener noreferrer">github.com/furqanRupom/pgv</a>
-                </div>
-
-                <div class="footer-landing">
-                    © <span id="landing-year"></span> Furqan Ahmad ·
-                    <a href="https://github.com/furqanRupom" target="_blank">@furqanRupom</a> ·
-                    Built with 🖤 for the dev community
-                </div>
+            </div>
+            <div class="nav-links">
+                <span class="nav-link" data-view="landing" id="nav-landing">🏠 Home</span>
+                <span class="nav-link" data-view="editor" id="nav-editor">✍️ Editor</span>
+                <a href="https://github.com/furqanRupom/pgv" target="_blank" class="nav-link nav-repo">📦 GitHub
+                    repo</a>
             </div>
         </div>
 
-        <!-- ==================== EDITOR VIEW ==================== -->
-        <div id="editor-view" class="view hidden">
-            <div id="toolbar">
-                <div class="logo" id="back-home-btn">
-                    <div class="logo-mark">🐾</div>
-                    <div>
-                        <div class="logo-name">PGV</div>
-                        <div class="logo-sub">Pug Viewer</div>
+        <!-- Views container -->
+        <div class="views-container">
+            <!-- LANDING VIEW -->
+            <div id="landing-view" class="view landing">
+                <div class="landing-container">
+                    <div class="hero">
+                        <div class="hero-badge">⚡ PURE JS · NO DEPENDENCIES</div>
+                        <h1>PGV · Pug Viewer</h1>
+                        <p>Live Pug (Jade) to HTML compiler with instant preview, dark mode, and zero dependencies.
+                            Write templates effortlessly.</p>
+                        <button id="launch-editor-btn" class="btn-large">🚀 Launch Editor →</button>
                     </div>
-                </div>
-                <div class="toolbar-mid">
-                    <span class="kbd">Ctrl + Enter</span>
-                    <span class="kbd-lbl" style="font-size:10px; color:#888;">&nbsp;render ·&nbsp;</span>
-                    <span class="kbd">Tab</span>
-                    <span class="kbd-lbl" style="font-size:10px; color:#888;">indent</span>
-                </div>
-                <div class="toolbar-right">
-                    <button class="btn" id="btn-copy">Copy HTML</button>
-                    <button class="btn" id="btn-clear">Clear</button>
-                    <button class="btn btn-run" id="btn-run">
-                        <svg viewBox="0 0 9 9">
-                            <polygon points="0,0 9,4.5 0,9" />
-                        </svg>
-                        Render
-                    </button>
+                    <div class="features">
+                        <div class="feature-card">
+                            <div class="feature-icon">📝</div>
+                            <h3>Full Pug Syntax</h3>
+                            <p>Doctype, tags, attributes, nesting, style./script. blocks, inline #[strong tags], and
+                                more.</p>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-icon">⚡</div>
+                            <h3>Live Preview</h3>
+                            <p>Debounced rendering + Ctrl+Enter. Error feedback directly in preview pane.</p>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-icon">📋</div>
+                            <h3>Copy HTML</h3>
+                            <p>Grab clean compiled HTML with one click, ready to use anywhere.</p>
+                        </div>
+                        <div class="feature-card">
+                            <div class="feature-icon">🎨</div>
+                            <h3>Resizable Panes</h3>
+                            <p>Drag to adjust source/preview width. Sticky navbar always accessible.</p>
+                        </div>
+                    </div>
+                    <div class="repo-card">
+                        🌟 Open Source · Contribute & star →
+                        <a href="https://github.com/furqanRupom/pgv" target="_blank">github.com/furqanRupom/pgv</a>
+                    </div>
+                    <div class="footer-landing">
+                        © <span id="landing-year"></span> Furqan Ahmad ·
+                        <a href="https://github.com/furqanRupom" target="_blank">@furqanRupom</a> · MIT License
+                    </div>
                 </div>
             </div>
 
-            <div id="panes">
-                <div class="pane" id="pane-left">
-                    <div class="pane-bar">
-                        <span class="pane-label">Source</span>
-                        <span class="pane-ext">.pug</span>
+            <!-- EDITOR VIEW -->
+            <div id="editor-view" class="view hidden">
+                <div class="editor-main">
+                    <div class="editor-toolbar">
+                        <div class="kbd-hint">Ctrl + Enter → render</div>
+                        <div class="kbd-hint">Tab → 2 spaces</div>
+                        <button class="btn" id="btn-copy">📋 Copy HTML</button>
+                        <button class="btn" id="btn-clear">🗑 Clear</button>
+                        <button class="btn btn-run" id="btn-run">▶ Render</button>
                     </div>
-                    <textarea id="editor" spellcheck="false" autocomplete="off" autocorrect="off" autocapitalize="off">doctype html
+
+                    <div id="panes">
+                        <div class="pane" id="pane-left">
+                            <div class="pane-bar"><span class="pane-label">Source</span><span
+                                    class="pane-ext">.pug</span></div>
+                            <textarea id="editor" spellcheck="false">doctype html
 html(lang="en")
   head
-    title PGV — dynamic demo
+    title PGV — Demo with dynamic footer
     style.
       * { margin: 0; padding: 0; box-sizing: border-box; }
       body {
@@ -697,68 +707,61 @@ html(lang="en")
         border: 1px solid rgba(255,255,255,0.1);
       }
       .accent { color: #d4930a; }
-      footer { margin-top: 2rem; font-size: 0.75rem; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 1rem; color: #777; }
+      footer { margin-top: 1.5rem; font-size: 0.75rem; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 1rem; color: #aaa; }
   body
     .card
-      h1 ✨ PGV #[span.accent Live Preview]
-      p Write Pug on the left → instantly see HTML on the right.
+      h1 🐾 PGV #[span.accent Live Pug]
+      p Write Pug on the left → instantly see HTML on the right. Sticky navbar always on top.
       ul
-        li #[strong ⚡ Fast] Zero-dependency parser
-        li #[strong 🧩 Mixins] and includes ready
-        li #[strong 📋 Copy HTML] + status metrics
+        li #[strong ⚡ Zero dependencies] — pure JS parser
+        li #[strong 🧩 Indentation-based] — clean syntax
+        li #[strong 📋 Copy HTML] — production ready
       footer
-        | © 2026 Furqan Ahmad · 
+        | © #{new Date().getFullYear()} Furqan Ahmad · 
         a(href="https://github.com/furqanRupom" target="_blank" style="color:#d4930a;") github.com/furqanRupom
-      .footer(style="margin-top: 0.8rem; font-size: 10px;") PGV — Pug Viewer</textarea>
-                </div>
-
-                <div id="divider"></div>
-
-                <div class="pane" id="pane-right">
-                    <div class="pane-bar">
-                        <span class="pane-label">Preview</span>
-                        <span class="pane-ext">.html</span>
+      .footer(style="margin-top: 0.8rem; font-size: 9px; opacity:0.6;") PGV — Pug Viewer</textarea>
+                        </div>
+                        <div id="divider"></div>
+                        <div class="pane" id="pane-right">
+                            <div class="pane-bar"><span class="pane-label">Preview</span><span
+                                    class="pane-ext">.html</span></div>
+                            <div id="preview-wrap"><iframe id="preview-frame" sandbox="allow-scripts allow-same-origin"
+                                    title="preview"></iframe></div>
+                            <div id="error-box">
+                                <div class="err-inner">
+                                    <div class="err-label">Compile Error</div>
+                                    <pre id="error-msg"></pre>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <div id="preview-wrap">
-                        <iframe id="preview-frame" sandbox="allow-scripts allow-same-origin"
-                            title="pug preview"></iframe>
-                    </div>
-                    <div id="error-box">
-                        <div class="err-inner">
-                            <div class="err-label">Compile Error</div>
-                            <pre id="error-msg"></pre>
+
+                    <div id="statusbar">
+                        <div class="status-left">
+                            <div class="si">
+                                <div class="dot ok" id="dot"></div><span id="st" class="ok">Ready</span>
+                            </div>
+                            <div class="si" id="li">0 lines</div>
+                            <div class="si" id="rt"></div>
+                            <div class="si" id="sz"></div>
+                        </div>
+                        <div class="footer-credit">
+                            <span>© <span id="year-dynamic"></span> Furqan Ahmad</span>
+                            <span>|</span>
+                            <a href="https://github.com/furqanRupom" target="_blank">@furqanRupom</a>
+                            <span>|</span>
+                            <a href="https://github.com/furqanRupom/pgv" target="_blank">⭐ pgv repo</a>
                         </div>
                     </div>
                 </div>
             </div>
-
-            <div id="statusbar">
-                <div class="status-left">
-                    <div class="si">
-                        <div class="dot ok" id="dot"></div><span id="st" class="ok">Ready</span>
-                    </div>
-                    <div class="si" id="li">0 lines</div>
-                    <div class="si" id="rt"></div>
-                    <div class="si" id="sz"></div>
-                </div>
-                <div class="footer-credit">
-                    <span>© <span id="year-dynamic"></span> Furqan Ahmad</span>
-                    <span>|</span>
-                    <a href="https://github.com/furqanRupom" target="_blank"
-                        rel="noopener noreferrer">github.com/furqanRupom</a>
-                    <span>|</span>
-                    <a href="https://github.com/furqanRupom/pgv" target="_blank">⭐ repo</a>
-                </div>
-            </div>
         </div>
     </div>
-
     <div id="toast"></div>
 
     <script>
         /* =====================================================
-           ZERO-DEPENDENCY PUG PARSER (supports doctype, tags, id/class, attrs, inline,
-           style./script. blocks, text blocks, comments, etc)
+           ZERO-DEPENDENCY PUG PARSER (full featured)
         ===================================================== */
         const PugParser = (() => {
             const VOID = new Set(['area', 'base', 'br', 'col', 'embed', 'hr', 'img', 'input', 'link', 'meta', 'param', 'source', 'track', 'wbr']);
@@ -783,7 +786,6 @@ html(lang="en")
                     else { cur += c; }
                 }
                 if (cur.trim()) parts.push(cur.trim());
-
                 return parts.map(p => {
                     const eq = p.indexOf('=');
                     if (eq === -1) return p.trim();
@@ -820,12 +822,9 @@ html(lang="en")
                     return { html: (!t || t === 'html') ? '<!DOCTYPE html>' : '<!DOCTYPE ' + t + '>', leaf: true };
                 }
                 if (rest.startsWith('| ')) return { html: inlineTags(rest.slice(2)), leaf: true };
-                if (rest === '|') return { html: '', leaf: true };
-
                 let tag = 'div', id = '', cls = [], attrRaw = '', inlineText = '', blockText = false;
                 const tagM = rest.match(/^([a-zA-Z][a-zA-Z0-9:-]*)/);
                 if (tagM) { tag = tagM[1]; rest = rest.slice(tag.length); }
-
                 while (true) {
                     const c = rest.match(/^\.(-?[_a-zA-Z][_a-zA-Z0-9-]*)/);
                     if (c) { cls.push(c[1]); rest = rest.slice(c[0].length); continue; }
@@ -833,7 +832,6 @@ html(lang="en")
                     if (d) { id = d[1]; rest = rest.slice(d[0].length); continue; }
                     break;
                 }
-
                 if (rest.startsWith('(')) {
                     let depth = 0, j = 0, inS = false, sc = '';
                     for (; j < rest.length; j++) {
@@ -846,17 +844,13 @@ html(lang="en")
                     attrRaw = rest.slice(1, j - 1);
                     rest = rest.slice(j);
                 }
-
                 if (rest === '.' || /^\.\s*$/.test(rest)) { blockText = true; rest = ''; }
-                if (!blockText && (rest.startsWith(' ') || rest.startsWith('\t'))) {
-                    inlineText = inlineTags(rest.trimStart());
-                }
+                if (!blockText && (rest.startsWith(' ') || rest.startsWith('\t'))) inlineText = inlineTags(rest.trimStart());
 
                 let attrOut = '';
                 if (id) attrOut += ' id="' + id + '"';
                 if (cls.length) attrOut += ' class="' + cls.join(' ') + '"';
                 if (attrRaw) { const parsed = parseAttrs(attrRaw); if (parsed) attrOut += ' ' + parsed; }
-
                 if (VOID.has(tag)) return { html: '<' + tag + attrOut + '>', leaf: true };
                 const open = '<' + tag + attrOut + '>';
                 const close = '</' + tag + '>';
@@ -934,13 +928,15 @@ html(lang="en")
             return { compile };
         })();
 
-        // APP STATE
-        const landingView = document.getElementById('landing-view');
-        const editorView = document.getElementById('editor-view');
-        const launchBtn = document.getElementById('launch-app-btn');
-        const backHomeBtn = document.getElementById('back-home-btn');
+        // DOM and application state
+        const landingViewEl = document.getElementById('landing-view');
+        const editorViewEl = document.getElementById('editor-view');
+        const launchBtn = document.getElementById('launch-editor-btn');
+        const navLanding = document.getElementById('nav-landing');
+        const navEditor = document.getElementById('nav-editor');
+        const navHomeTrigger = document.getElementById('nav-home-trigger');
         const editor = document.getElementById('editor');
-        const frame = document.getElementById('preview-frame');
+        const frameEl = document.getElementById('preview-frame');
         const previewWrap = document.getElementById('preview-wrap');
         const errorBox = document.getElementById('error-box');
         const errorMsgSpan = document.getElementById('error-msg');
@@ -954,29 +950,34 @@ html(lang="en")
         let compiled = '';
         let timer = null;
 
-        function setView(view) {
+        function setActiveView(view) {
             if (view === 'landing') {
-                landingView.classList.remove('hidden');
-                editorView.classList.add('hidden');
+                landingViewEl.classList.remove('hidden');
+                editorViewEl.classList.add('hidden');
             } else {
-                landingView.classList.add('hidden');
-                editorView.classList.remove('hidden');
-                render(); // ensure preview after showing
+                landingViewEl.classList.add('hidden');
+                editorViewEl.classList.remove('hidden');
+                render();
             }
+            // update active nav style (simple)
+            [navLanding, navEditor].forEach(n => n.classList.remove('active'));
+            if (view === 'landing') navLanding.classList.add('active');
+            else navEditor.classList.add('active');
         }
 
         function render() {
             const src = editor.value;
-            if (!src.trim()) { frame.srcdoc = ''; return; }
+            if (!src.trim()) { frameEl.srcdoc = ''; return; }
             try {
+                const t0 = performance.now();
                 compiled = PugParser.compile(src);
-                frame.srcdoc = compiled;
+                const ms = (performance.now() - t0).toFixed(1);
+                frameEl.srcdoc = compiled;
                 previewWrap.style.display = 'block';
                 errorBox.style.display = 'none';
                 setStatus('ok', 'OK');
-                rtEl.textContent = (performance.now() - window._rtMark || 0).toFixed(1) + ' ms';
+                rtEl.textContent = ms + ' ms';
                 szEl.textContent = fmtBytes(new Blob([compiled]).size);
-                window._rtMark = null;
             } catch (e) {
                 compiled = '';
                 previewWrap.style.display = 'none';
@@ -988,87 +989,53 @@ html(lang="en")
             }
             updateMeta();
         }
-
-        function setStatus(type, msg) {
-            dotEl.className = 'dot ' + type;
-            stEl.className = type;
-            stEl.textContent = msg;
-        }
-        function updateMeta() {
-            const n = editor.value.split('\n').length;
-            liEl.textContent = n + (n === 1 ? ' line' : ' lines');
-        }
+        function setStatus(type, msg) { dotEl.className = 'dot ' + type; stEl.className = type; stEl.textContent = msg; }
+        function updateMeta() { const n = editor.value.split('\n').length; liEl.textContent = n + (n === 1 ? ' line' : ' lines'); }
         function fmtBytes(b) { return b < 1024 ? b + ' B' : (b / 1024).toFixed(1) + ' KB'; }
         function showToast(msg, err) {
             toastEl.textContent = msg;
             toastEl.style.background = err ? 'rgba(224,92,92,0.15)' : 'var(--bg3)';
-            toastEl.style.color = err ? '#f09595' : 'var(--text)';
             toastEl.classList.add('show');
             clearTimeout(window.toastTimer);
-            window.toastTimer = setTimeout(() => toastEl.classList.remove('show'), 2200);
+            window.toastTimer = setTimeout(() => toastEl.classList.remove('show'), 2000);
         }
 
-        editor.addEventListener('input', () => {
-            updateMeta();
-            clearTimeout(timer);
-            window._rtMark = performance.now();
-            timer = setTimeout(render, 380);
-        });
+        editor.addEventListener('input', () => { updateMeta(); clearTimeout(timer); timer = setTimeout(render, 350); });
         editor.addEventListener('keydown', e => {
             if (e.key === 'Tab') {
                 e.preventDefault();
                 const s = editor.selectionStart, en = editor.selectionEnd;
                 editor.value = editor.value.slice(0, s) + '  ' + editor.value.slice(en);
                 editor.selectionStart = editor.selectionEnd = s + 2;
-                updateMeta();
-                clearTimeout(timer);
-                timer = setTimeout(render, 380);
+                updateMeta(); clearTimeout(timer); timer = setTimeout(render, 350);
             }
-            if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
-                e.preventDefault();
-                clearTimeout(timer);
-                window._rtMark = performance.now();
-                render();
-            }
+            if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') { e.preventDefault(); clearTimeout(timer); render(); }
         });
-
-        document.getElementById('btn-run').addEventListener('click', () => { clearTimeout(timer); window._rtMark = performance.now(); render(); });
+        document.getElementById('btn-run').addEventListener('click', () => { clearTimeout(timer); render(); });
         document.getElementById('btn-copy').addEventListener('click', () => {
-            if (!compiled) { showToast('Nothing to copy', true); return; }
-            navigator.clipboard.writeText(compiled).then(() => showToast('HTML copied ✓')).catch(() => { const ta = document.createElement('textarea'); ta.value = compiled; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta); showToast('Copied'); });
+            if (!compiled) { showToast('Render first', true); return; }
+            navigator.clipboard.writeText(compiled).then(() => showToast('Copied HTML ✓')).catch(() => { const ta = document.createElement('textarea'); ta.value = compiled; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta); showToast('Copied'); });
         });
-        document.getElementById('btn-clear').addEventListener('click', () => {
-            editor.value = ''; compiled = ''; frame.srcdoc = ''; errorBox.style.display = 'none'; previewWrap.style.display = 'block';
-            setStatus('ok', 'Cleared'); rtEl.textContent = ''; szEl.textContent = ''; updateMeta(); showToast('Cleared');
-        });
+        document.getElementById('btn-clear').addEventListener('click', () => { editor.value = ''; compiled = ''; frameEl.srcdoc = ''; errorBox.style.display = 'none'; previewWrap.style.display = 'block'; setStatus('ok', 'Cleared'); rtEl.textContent = ''; szEl.textContent = ''; updateMeta(); });
 
         // divider drag
         const divider = document.getElementById('divider');
         const paneLeft = document.getElementById('pane-left');
-        const panesEl = document.getElementById('panes');
-        let drag = false, dx0 = 0, dw0 = 0;
-        divider.addEventListener('mousedown', e => {
-            drag = true; dx0 = e.clientX; dw0 = paneLeft.getBoundingClientRect().width;
-            divider.classList.add('active');
-            document.body.style.cursor = 'col-resize';
-            e.preventDefault();
-        });
-        document.addEventListener('mousemove', e => {
-            if (!drag) return;
-            const total = panesEl.getBoundingClientRect().width - 5;
-            let w = Math.max(180, Math.min(total - 180, dw0 + e.clientX - dx0));
-            paneLeft.style.flex = 'none'; paneLeft.style.width = w + 'px';
-        });
-        document.addEventListener('mouseup', () => { if (drag) { drag = false; divider.classList.remove('active'); document.body.style.cursor = ''; } });
+        const panesContainer = document.getElementById('panes');
+        let dragging = false, startX = 0, startW = 0;
+        divider.addEventListener('mousedown', e => { dragging = true; startX = e.clientX; startW = paneLeft.getBoundingClientRect().width; divider.classList.add('active'); document.body.style.cursor = 'col-resize'; e.preventDefault(); });
+        document.addEventListener('mousemove', e => { if (!dragging) return; const total = panesContainer.getBoundingClientRect().width - 5; let newW = Math.max(200, Math.min(total - 200, startW + (e.clientX - startX))); paneLeft.style.flex = 'none'; paneLeft.style.width = newW + 'px'; });
+        document.addEventListener('mouseup', () => { if (dragging) { dragging = false; divider.classList.remove('active'); document.body.style.cursor = ''; } });
 
-        // year insert
-        document.getElementById('year-dynamic').innerText = new Date().getFullYear();
+        // navbar & navigation
+        launchBtn.addEventListener('click', () => setActiveView('editor'));
+        navLanding.addEventListener('click', () => setActiveView('landing'));
+        navEditor.addEventListener('click', () => setActiveView('editor'));
+        navHomeTrigger.addEventListener('click', () => setActiveView('landing'));
         document.getElementById('landing-year').innerText = new Date().getFullYear();
-        launchBtn.addEventListener('click', () => setView('editor'));
-        backHomeBtn.addEventListener('click', () => setView('landing'));
-
+        document.getElementById('year-dynamic').innerText = new Date().getFullYear();
         updateMeta();
-        render();
+        setActiveView('landing');
     </script>
 </body>
 
