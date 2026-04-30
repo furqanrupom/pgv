@@ -18,11 +18,9 @@
     <link
         href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;1,400&family=Syne:wght@400;600;700;800&display=swap"
         rel="stylesheet" />
-    <!-- Tailwind CSS v3 + Font Awesome -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
     <style>
-        /* Custom overrides for Tailwind + glass theme */
         body {
             font-family: 'Syne', sans-serif;
         }
@@ -31,66 +29,155 @@
             font-family: 'JetBrains Mono', monospace;
         }
 
-        /* Custom scrollbar */
-        ::-webkit-scrollbar {
-            width: 6px;
-            height: 6px;
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #26262b; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #4e4d4a; }
+
+        .view { transition: opacity 0.3s ease, visibility 0.3s; }
+        .view.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
+
+        #divider { cursor: col-resize; transition: background 0.15s; }
+        #divider:hover, #divider.active { background: rgba(212, 147, 10, 0.2); }
+
+        #toast { transition: opacity 0.2s, transform 0.2s; }
+        #toast.show { opacity: 1 !important; transform: translateX(-50%) translateY(0) !important; }
+
+        /* ── Syntax Highlight Editor ── */
+        #editor-wrap {
+            position: relative;
+            flex: 1;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
         }
 
-        ::-webkit-scrollbar-track {
-            background: transparent;
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: #26262b;
-            border-radius: 3px;
-        }
-
-        ::-webkit-scrollbar-thumb:hover {
-            background: #4e4d4a;
-        }
-
-        /* Editor and preview specific */
+        /* The hidden textarea captures input */
         #editor {
-            tab-size: 2;
-            caret-color: #d4930a;
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            padding: 1rem 1.25rem;
+            background: transparent;
+            color: transparent;
+            caret-color: #f0aa1e;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13.5px;
             line-height: 1.8;
+            tab-size: 2;
+            resize: none;
+            border: none;
+            outline: none;
+            overflow: auto;
+            z-index: 2;
+            white-space: pre;
+            word-wrap: normal;
         }
 
         #editor::selection {
-            background: rgba(212, 147, 10, 0.25);
+            background: rgba(212, 147, 10, 0.3);
+            color: transparent;
         }
 
-        /* Smooth transitions for views */
-        .view {
-            transition: opacity 0.3s ease, visibility 0.3s;
-        }
-
-        .view.hidden {
-            opacity: 0;
-            visibility: hidden;
+        /* The visible highlight layer */
+        #highlight-layer {
+            position: absolute;
+            inset: 0;
+            padding: 1rem 1.25rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13.5px;
+            line-height: 1.8;
+            tab-size: 2;
+            white-space: pre;
+            word-wrap: normal;
+            overflow: hidden;
             pointer-events: none;
+            z-index: 1;
+            color: #e8e6e0;
         }
 
-        /* Divider styling */
-        #divider {
-            cursor: col-resize;
-            transition: background 0.15s;
+        /* Line numbers */
+        #line-numbers {
+            position: absolute;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            width: 42px;
+            padding: 1rem 0;
+            background: #0c0c0e;
+            border-right: 1px solid rgba(255,255,255,0.06);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            line-height: 1.8;
+            color: #333337;
+            text-align: right;
+            padding-right: 8px;
+            overflow: hidden;
+            user-select: none;
+            pointer-events: none;
+            z-index: 3;
+            box-sizing: border-box;
         }
 
-        #divider:hover,
-        #divider.active {
-            background: rgba(212, 147, 10, 0.2);
+        /* Offset editor & highlight for line numbers */
+        #editor, #highlight-layer {
+            padding-left: 54px;
         }
 
-        /* Toast animation */
-        #toast {
-            transition: opacity 0.2s, transform 0.2s;
-        }
+        /* ── Pug Token Colors ── */
+        .pug-doctype    { color: #888784; font-style: italic; }
+        .pug-tag        { color: #e8855a; font-weight: 600; }
+        .pug-id         { color: #d4930a; }
+        .pug-class      { color: #4caf7d; }
+        .pug-attr-name  { color: #79b8ff; }
+        .pug-attr-value { color: #9ecbff; }
+        .pug-attr-paren { color: #6e7681; }
+        .pug-text       { color: #e8e6e0; }
+        .pug-pipe       { color: #d4930a; }
+        .pug-comment    { color: #555560; font-style: italic; }
+        .pug-string     { color: #9ecbff; }
+        .pug-keyword    { color: #c792ea; font-style: italic; }
+        .pug-style-kw   { color: #ff8c69; font-style: italic; }
+        .pug-script-kw  { color: #ff8c69; font-style: italic; }
+        .pug-inline-tag { color: #e8855a; font-weight: 600; }
+        .pug-inline-bracket { color: #d4930a; }
+        .pug-mixin      { color: #c792ea; }
+        .pug-interpolation { color: #f0aa1e; }
+        .pug-indent-guide { color: rgba(255,255,255,0.04); }
 
-        #toast.show {
-            opacity: 1 !important;
-            transform: translateX(-50%) translateY(0) !important;
+        /* ── CSS Token Colors (inside style. blocks) ── */
+        .css-selector   { color: #e8855a; font-weight: 600; }   /* div, .class, #id, * */
+        .css-sel-class  { color: #4caf7d; font-weight: 600; }   /* .className */
+        .css-sel-id     { color: #d4930a; font-weight: 600; }   /* #id */
+        .css-sel-pseudo { color: #c792ea; }                      /* :hover, ::before */
+        .css-sel-attr   { color: #79b8ff; }                      /* [type="text"] */
+        .css-brace      { color: #6e7681; }                      /* { } */
+        .css-prop       { color: #79b8ff; }                      /* property name */
+        .css-colon      { color: #6e7681; }                      /* : */
+        .css-semi       { color: #6e7681; }                      /* ; */
+        .css-value      { color: #e8e6e0; }                      /* generic value */
+        .css-number     { color: #f0aa1e; }                      /* 12px, 1.5, 100% */
+        .css-unit       { color: #f0aa1e; opacity:.8; }          /* px, em, rem, % */
+        .css-color-hex  { color: #4caf7d; }                      /* #fff, #d4930a */
+        .css-color-fn   { color: #4caf7d; }                      /* rgb(), hsl() */
+        .css-string     { color: #9ecbff; }                      /* "value", 'value' */
+        .css-func       { color: #e8855a; }                      /* calc(), var(), url() */
+        .css-func-paren { color: #6e7681; }
+        .css-var-name   { color: #c792ea; }                      /* --my-var */
+        .css-important  { color: #e05c5c; font-weight: 700; }    /* !important */
+        .css-at-rule    { color: #c792ea; font-style: italic; }  /* @media, @keyframes */
+        .css-comment    { color: #555560; font-style: italic; }  /* /* ... */ }
+        .css-kw-value   { color: #ff8c69; }                      /* none, auto, inherit, flex, block… */
+
+        /* Active line highlight */
+        .line-active-bg {
+            background: rgba(212, 147, 10, 0.045);
+            display: inline-block;
+            width: 100%;
+            margin-left: -54px;
+            padding-left: 54px;
+            box-sizing: content-box;
         }
     </style>
 
@@ -102,16 +189,8 @@
       "applicationCategory": "DeveloperApplication",
       "operatingSystem": "Web",
       "description": "Free online Pug to HTML compiler with live preview",
-      "offers": {
-        "@type": "Offer",
-        "price": "0",
-        "priceCurrency": "USD"
-      },
-      "author": {
-        "@type": "Person",
-        "name": "Furqan Ahmad",
-        "url": "https://github.com/furqanRupom"
-      }
+      "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+      "author": { "@type": "Person", "name": "Furqan Ahmad", "url": "https://github.com/furqanRupom" }
     }
     </script>
 </head>
@@ -120,37 +199,26 @@
 
     <div id="pgv" class="flex flex-col h-full overflow-hidden">
 
-        <!-- GLASS NAVBAR - Rounded, blurred, no borders on active links, only icons for GitHub -->
-        <nav
-            class="sticky top-0 z-[100] w-[95%] max-w-5xl mx-auto mt-4 rounded-2xl bg-transparent backdrop-blur-xl border border-white/10 shadow-2xl transition-all duration-300">
+        <!-- NAVBAR -->
+        <nav class="sticky top-0 z-[100] w-[95%] max-w-5xl mx-auto mt-4 rounded-2xl bg-transparent backdrop-blur-xl border border-white/10 shadow-2xl transition-all duration-300">
             <div class="flex items-center justify-between px-6 py-3">
-                <!-- Logo -->
                 <div class="nav-logo flex items-center gap-3 cursor-pointer group" id="nav-home-trigger">
-                    <div
-                        class="w-10 h-10 bg-gradient-to-br from-[#d4930a] to-[#f0aa1e] rounded-xl flex items-center justify-center shadow-lg group-hover:scale-105 transition">
+                    <div class="w-10 h-10 bg-gradient-to-br from-[#d4930a] to-[#f0aa1e] rounded-xl flex items-center justify-center shadow-lg group-hover:scale-105 transition">
                         <i class="fas fa-paw text-white text-lg"></i>
                     </div>
                     <div>
-                        <span
-                            class="text-xl font-extrabold bg-gradient-to-r from-[#f5e7c8] to-[#e0a21e] bg-clip-text text-transparent tracking-tight">PGV</span>
+                        <span class="text-xl font-extrabold bg-gradient-to-r from-[#f5e7c8] to-[#e0a21e] bg-clip-text text-transparent tracking-tight">PGV</span>
                         <span class="font-mono-custom text-[10px] text-[#4e4d4a] ml-1">Pug Viewer</span>
                     </div>
                 </div>
-
-                <!-- Navigation Links - no borders, only icons for GitHub -->
                 <div class="flex items-center gap-6">
-                    <span
-                        class="nav-link text-[#888784] hover:text-[#f0aa1e] transition-all duration-200 text-sm font-semibold cursor-pointer flex items-center gap-2"
-                        data-view="landing" id="nav-landing">
+                    <span class="nav-link text-[#888784] hover:text-[#f0aa1e] transition-all duration-200 text-sm font-semibold cursor-pointer flex items-center gap-2" data-view="landing" id="nav-landing">
                         <i class="fas fa-home text-sm"></i> Home
                     </span>
-                    <span
-                        class="nav-link text-[#888784] hover:text-[#f0aa1e] transition-all duration-200 text-sm font-semibold cursor-pointer flex items-center gap-2"
-                        data-view="editor" id="nav-editor">
+                    <span class="nav-link text-[#888784] hover:text-[#f0aa1e] transition-all duration-200 text-sm font-semibold cursor-pointer flex items-center gap-2" data-view="editor" id="nav-editor">
                         <i class="fas fa-code text-sm"></i> Editor
                     </span>
-                    <a href="https://github.com/furqanRupom/pgv" target="_blank"
-                        class="text-[#888784] hover:text-[#f0aa1e] transition-all duration-200 text-lg ml-2 flex items-center gap-1 hover:scale-105">
+                    <a href="https://github.com/furqanRupom/pgv" target="_blank" class="text-[#888784] hover:text-[#f0aa1e] transition-all duration-200 text-lg ml-2 flex items-center gap-1 hover:scale-105">
                         <i class="fab fa-github"></i>
                     </a>
                 </div>
@@ -161,75 +229,56 @@
         <div class="flex-1 relative overflow-hidden mt-4">
 
             <!-- LANDING VIEW -->
-            <div id="landing-view"
-                class="view absolute inset-0 overflow-y-auto px-4 py-6 bg-[radial-gradient(ellipse_at_20%_30%,#141418,#0a0a0c)]">
+            <div id="landing-view" class="view absolute inset-0 overflow-y-auto px-4 py-6 bg-[radial-gradient(ellipse_at_20%_30%,#141418,#0a0a0c)]">
                 <div class="max-w-6xl mx-auto flex flex-col gap-12">
-                    <!-- Hero Section -->
                     <div class="text-center py-8">
-                        <div
-                            class="inline-flex items-center gap-2 bg-[#d4930a]/10 backdrop-blur-sm border border-[#d4930a]/30 rounded-full px-4 py-1.5 text-sm font-mono text-[#f0aa1e] mb-6">
+                        <div class="inline-flex items-center gap-2 bg-[#d4930a]/10 backdrop-blur-sm border border-[#d4930a]/30 rounded-full px-4 py-1.5 text-sm font-mono text-[#f0aa1e] mb-6">
                             <i class="fas fa-bolt text-xs"></i> PURE JS · NO DEPENDENCIES
                         </div>
-                        <h1
-                            class="text-5xl md:text-7xl font-extrabold bg-gradient-to-r from-[#f5e7c8] to-[#e0a21e] bg-clip-text text-transparent mb-4 flex items-center justify-center gap-3">
+                        <h1 class="text-5xl md:text-7xl font-extrabold bg-gradient-to-r from-[#f5e7c8] to-[#e0a21e] bg-clip-text text-transparent mb-4 flex items-center justify-center gap-3">
                             <i class="fas fa-paw text-4xl text-[#d4930a]"></i> PGV · Pug Viewer
                         </h1>
                         <p class="text-[#888784] text-lg max-w-2xl mx-auto leading-relaxed">
-                            Live Pug (Jade) to HTML compiler with instant preview, dark mode, and zero dependencies.
-                            Write templates effortlessly.
+                            Live Pug (Jade) to HTML compiler with instant preview, syntax highlighting, and zero dependencies. Write templates effortlessly.
                         </p>
-                        <button id="launch-editor-btn"
-                            class="mt-8 inline-flex items-center gap-3 bg-[#d4930a] hover:bg-[#f0aa1e] text-black font-bold py-3 px-8 rounded-full transition-all hover:scale-105 shadow-lg hover:shadow-xl">
+                        <button id="launch-editor-btn" class="mt-8 inline-flex items-center gap-3 bg-[#d4930a] hover:bg-[#f0aa1e] text-black font-bold py-3 px-8 rounded-full transition-all hover:scale-105 shadow-lg hover:shadow-xl">
                             <i class="fas fa-rocket"></i> Launch Editor →
                         </button>
                     </div>
 
-                    <!-- Features Grid -->
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                        <div
-                            class="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6 hover:border-[#d4930a]/50 transition-all hover:-translate-y-1">
+                        <div class="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6 hover:border-[#d4930a]/50 transition-all hover:-translate-y-1">
                             <i class="fas fa-file-alt text-3xl text-[#d4930a] mb-4"></i>
                             <h3 class="text-lg font-bold mb-2">Full Pug Syntax</h3>
-                            <p class="text-[#888784] text-sm">Doctype, tags, attributes, nesting, style./script. blocks,
-                                inline tags, and more.</p>
+                            <p class="text-[#888784] text-sm">Doctype, tags, attributes, nesting, style./script. blocks, inline tags, and more.</p>
                         </div>
-                        <div
-                            class="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6 hover:border-[#d4930a]/50 transition-all hover:-translate-y-1">
-                            <i class="fas fa-eye text-3xl text-[#d4930a] mb-4"></i>
-                            <h3 class="text-lg font-bold mb-2">Live Preview</h3>
-                            <p class="text-[#888784] text-sm">Debounced rendering + Ctrl+Enter. Error feedback directly
-                                in preview pane.</p>
+                        <div class="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6 hover:border-[#d4930a]/50 transition-all hover:-translate-y-1">
+                            <i class="fas fa-highlighter text-3xl text-[#d4930a] mb-4"></i>
+                            <h3 class="text-lg font-bold mb-2">Syntax Highlighting</h3>
+                            <p class="text-[#888784] text-sm">Token-level coloring for tags, classes, IDs, attributes, comments, and inline content.</p>
                         </div>
-                        <div
-                            class="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6 hover:border-[#d4930a]/50 transition-all hover:-translate-y-1">
+                        <div class="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6 hover:border-[#d4930a]/50 transition-all hover:-translate-y-1">
                             <i class="fas fa-copy text-3xl text-[#d4930a] mb-4"></i>
                             <h3 class="text-lg font-bold mb-2">Copy HTML</h3>
-                            <p class="text-[#888784] text-sm">Grab clean compiled HTML with one click, ready to use
-                                anywhere.</p>
+                            <p class="text-[#888784] text-sm">Grab clean compiled HTML with one click, ready to use anywhere.</p>
                         </div>
-                        <div
-                            class="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6 hover:border-[#d4930a]/50 transition-all hover:-translate-y-1">
+                        <div class="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6 hover:border-[#d4930a]/50 transition-all hover:-translate-y-1">
                             <i class="fas fa-arrows-alt text-3xl text-[#d4930a] mb-4"></i>
                             <h3 class="text-lg font-bold mb-2">Resizable Panes</h3>
-                            <p class="text-[#888784] text-sm">Drag to adjust source/preview width. Sticky navbar always
-                                accessible.</p>
+                            <p class="text-[#888784] text-sm">Drag to adjust source/preview width. Sticky navbar always accessible.</p>
                         </div>
                     </div>
 
-                    <!-- GitHub Repo Card -->
                     <div class="bg-white/5 backdrop-blur-sm border border-white/10 rounded-full py-4 px-6 text-center">
                         <span class="text-[#888784]">🌟 Open Source · Contribute & star →</span>
-                        <a href="https://github.com/furqanRupom/pgv" target="_blank"
-                            class="text-[#f0aa1e] font-mono hover:underline ml-2">
+                        <a href="https://github.com/furqanRupom/pgv" target="_blank" class="text-[#f0aa1e] font-mono hover:underline ml-2">
                             <i class="fab fa-github"></i> github.com/furqanRupom/pgv
                         </a>
                     </div>
 
-                    <!-- Footer -->
                     <div class="text-center text-[#4e4d4a] text-xs py-6 border-t border-white/10">
                         <i class="far fa-copyright"></i> <span id="landing-year"></span> Furqan Ahmad ·
-                        <a href="https://github.com/furqanRupom" target="_blank"
-                            class="text-[#d4930a] hover:text-[#f0aa1e]"><i class="fab fa-github"></i> @furqanRupom</a>
+                        <a href="https://github.com/furqanRupom" target="_blank" class="text-[#d4930a] hover:text-[#f0aa1e]"><i class="fab fa-github"></i> @furqanRupom</a>
                     </div>
                 </div>
             </div>
@@ -237,26 +286,20 @@
             <!-- EDITOR VIEW -->
             <div id="editor-view" class="view hidden absolute inset-0 flex flex-col bg-[#0f0f11]">
                 <!-- Editor Toolbar -->
-                <div
-                    class="flex items-center justify-end gap-3 px-6 py-3 bg-white/5 backdrop-blur-sm border-b border-white/10 flex-shrink-0">
-                    <div
-                        class="flex items-center gap-2 text-[10px] font-mono bg-black/30 backdrop-blur px-3 py-1.5 rounded-full border border-white/10">
+                <div class="flex items-center justify-end gap-3 px-6 py-3 bg-white/5 backdrop-blur-sm border-b border-white/10 flex-shrink-0">
+                    <div class="flex items-center gap-2 text-[10px] font-mono bg-black/30 backdrop-blur px-3 py-1.5 rounded-full border border-white/10">
                         <i class="fas fa-keyboard text-[#d4930a]"></i> Ctrl + Enter → render
                     </div>
-                    <div
-                        class="flex items-center gap-2 text-[10px] font-mono bg-black/30 backdrop-blur px-3 py-1.5 rounded-full border border-white/10">
+                    <div class="flex items-center gap-2 text-[10px] font-mono bg-black/30 backdrop-blur px-3 py-1.5 rounded-full border border-white/10">
                         <i class="fas fa-indent text-[#d4930a]"></i> Tab → 2 spaces
                     </div>
-                    <button id="btn-copy"
-                        class="btn text-xs font-semibold px-4 py-1.5 rounded-full border border-white/20 bg-transparent text-[#888784] hover:bg-white/10 hover:text-white transition flex items-center gap-2">
+                    <button id="btn-copy" class="btn text-xs font-semibold px-4 py-1.5 rounded-full border border-white/20 bg-transparent text-[#888784] hover:bg-white/10 hover:text-white transition flex items-center gap-2">
                         <i class="far fa-copy"></i> Copy HTML
                     </button>
-                    <button id="btn-clear"
-                        class="btn text-xs font-semibold px-4 py-1.5 rounded-full border border-white/20 bg-transparent text-[#888784] hover:bg-white/10 hover:text-white transition flex items-center gap-2">
+                    <button id="btn-clear" class="btn text-xs font-semibold px-4 py-1.5 rounded-full border border-white/20 bg-transparent text-[#888784] hover:bg-white/10 hover:text-white transition flex items-center gap-2">
                         <i class="fas fa-trash-alt"></i> Clear
                     </button>
-                    <button id="btn-run"
-                        class="btn bg-[#d4930a] hover:bg-[#f0aa1e] text-black font-bold px-5 py-1.5 rounded-full transition-all flex items-center gap-2 shadow-md">
+                    <button id="btn-run" class="btn bg-[#d4930a] hover:bg-[#f0aa1e] text-black font-bold px-5 py-1.5 rounded-full transition-all flex items-center gap-2 shadow-md">
                         <i class="fas fa-play"></i> Render
                     </button>
                 </div>
@@ -265,17 +308,18 @@
                 <div id="panes" class="flex flex-1 overflow-hidden">
                     <!-- Left Pane: Pug Editor -->
                     <div id="pane-left" class="flex flex-col overflow-hidden min-w-[200px] flex-1">
-                        <div
-                            class="flex items-center justify-between px-4 py-2 bg-white/5 backdrop-blur-sm border-b border-white/10">
-                            <span class="text-[10px] font-bold uppercase tracking-wider text-[#4e4d4a]"><i
-                                    class="fas fa-pen-nib mr-1"></i> Source</span>
-                            <span
-                                class="font-mono text-[10px] text-[#d4930a] bg-[#d4930a]/10 px-2 py-0.5 rounded-full"><i
-                                    class="fab fa-pug"></i> .pug</span>
+                        <div class="flex items-center justify-between px-4 py-2 bg-white/5 backdrop-blur-sm border-b border-white/10">
+                            <span class="text-[10px] font-bold uppercase tracking-wider text-[#4e4d4a]"><i class="fas fa-pen-nib mr-1"></i> Source</span>
+                            <span class="font-mono text-[10px] text-[#d4930a] bg-[#d4930a]/10 px-2 py-0.5 rounded-full"><i class="fab fa-pug"></i> .pug</span>
                         </div>
-                        <textarea id="editor"
-                            class="flex-1 w-full px-5 py-4 bg-[#0f0f11] text-[#e8e6e0] font-mono text-[13.5px] outline-none resize-none border-none"
-                            spellcheck="false">doctype html
+                        <!-- Highlight Editor Wrapper -->
+                        <div id="editor-wrap" style="flex:1;position:relative;overflow:hidden;background:#0f0f11;">
+                            <div id="line-numbers"></div>
+                            <div id="highlight-layer"></div>
+                            <textarea id="editor"
+                                spellcheck="false"
+                                autocorrect="off"
+                                autocapitalize="off">doctype html
 html(lang="en")
   head
     title PGV — Demo with dynamic footer
@@ -312,38 +356,32 @@ html(lang="en")
         | © 2026 Furqan Ahmad · 
         a(href="https://github.com/furqanRupom" target="_blank" style="color:#d4930a;") github.com/furqanRupom
       .footer(style="margin-top: 0.8rem; font-size: 9px; opacity:0.6;") PGV — Pug Viewer</textarea>
+                        </div>
                     </div>
 
                     <!-- Divider -->
                     <div id="divider" class="w-1 flex-shrink-0 bg-white/5 border-l border-r border-white/10"></div>
 
-                    <!-- Right Pane: Preview / Error -->
+                    <!-- Right Pane: Preview -->
                     <div id="pane-right" class="flex flex-col overflow-hidden flex-1">
-                        <div
-                            class="flex items-center justify-between px-4 py-2 bg-white/5 backdrop-blur-sm border-b border-white/10">
-                            <span class="text-[10px] font-bold uppercase tracking-wider text-[#4e4d4a]"><i
-                                    class="fas fa-eye mr-1"></i> Preview</span>
-                            <span
-                                class="font-mono text-[10px] text-[#d4930a] bg-[#d4930a]/10 px-2 py-0.5 rounded-full"><i
-                                    class="fab fa-html5"></i> .html</span>
+                        <div class="flex items-center justify-between px-4 py-2 bg-white/5 backdrop-blur-sm border-b border-white/10">
+                            <span class="text-[10px] font-bold uppercase tracking-wider text-[#4e4d4a]"><i class="fas fa-eye mr-1"></i> Preview</span>
+                            <span class="font-mono text-[10px] text-[#d4930a] bg-[#d4930a]/10 px-2 py-0.5 rounded-full"><i class="fab fa-html5"></i> .html</span>
                         </div>
                         <div id="preview-wrap" class="flex-1 overflow-hidden bg-white">
-                            <iframe id="preview-frame" class="w-full h-full border-none"
-                                sandbox="allow-scripts allow-same-origin" title="preview"></iframe>
+                            <iframe id="preview-frame" class="w-full h-full border-none" sandbox="allow-scripts allow-same-origin" title="preview"></iframe>
                         </div>
                         <div id="error-box" class="flex-1 hidden p-5 bg-[#0f0f11] overflow-auto">
                             <div class="bg-red-500/10 border border-red-500/30 rounded-xl p-4">
-                                <div class="text-[10px] font-bold uppercase tracking-wider text-[#e05c5c] mb-2"><i
-                                        class="fas fa-exclamation-triangle"></i> Compile Error</div>
+                                <div class="text-[10px] font-bold uppercase tracking-wider text-[#e05c5c] mb-2"><i class="fas fa-exclamation-triangle"></i> Compile Error</div>
                                 <pre id="error-msg" class="font-mono text-xs text-[#f09595] whitespace-pre-wrap"></pre>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Status Bar with footer credit -->
-                <div
-                    class="flex items-center justify-between px-5 py-1.5 bg-white/5 backdrop-blur-sm border-t border-white/10 text-[10px] font-mono text-[#4e4d4a] flex-shrink-0">
+                <!-- Status Bar -->
+                <div class="flex items-center justify-between px-5 py-1.5 bg-white/5 backdrop-blur-sm border-t border-white/10 text-[10px] font-mono text-[#4e4d4a] flex-shrink-0">
                     <div class="flex items-center gap-5">
                         <div class="flex items-center gap-2">
                             <div class="dot w-2 h-2 rounded-full bg-[#4caf7d]" id="dot"></div>
@@ -355,35 +393,434 @@ html(lang="en")
                     </div>
                     <div class="flex items-center gap-3">
                         <span><i class="far fa-copyright"></i> <span id="year-dynamic"></span> Furqan Ahmad</span>
-                        <a href="https://github.com/furqanRupom" target="_blank"
-                            class="text-[#d4930a] hover:text-[#f0aa1e]"><i class="fab fa-github"></i> @furqanRupom</a>
-                        <a href="https://github.com/furqanRupom/pgv" target="_blank"
-                            class="text-[#d4930a] hover:text-[#f0aa1e]"><i class="fas fa-star"></i> repo</a>
+                        <a href="https://github.com/furqanRupom" target="_blank" class="text-[#d4930a] hover:text-[#f0aa1e]"><i class="fab fa-github"></i> @furqanRupom</a>
+                        <a href="https://github.com/furqanRupom/pgv" target="_blank" class="text-[#d4930a] hover:text-[#f0aa1e]"><i class="fas fa-star"></i> repo</a>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Toast Notification -->
-    <div id="toast"
-        class="fixed bottom-8 left-1/2 -translate-x-1/2 translate-y-2 bg-black/80 backdrop-blur-lg border border-white/20 text-white font-mono text-xs px-5 py-2 rounded-full opacity-0 pointer-events-none z-[1000] whitespace-nowrap">
-    </div>
+    <!-- Toast -->
+    <div id="toast" class="fixed bottom-8 left-1/2 -translate-x-1/2 translate-y-2 bg-black/80 backdrop-blur-lg border border-white/20 text-white font-mono text-xs px-5 py-2 rounded-full opacity-0 pointer-events-none z-[1000] whitespace-nowrap"></div>
 
     <script>
         /* =====================================================
-           ZERO-DEPENDENCY PUG PARSER (full featured)
+           CSS SYNTAX HIGHLIGHTER
+        ===================================================== */
+        const CssHighlighter = (() => {
+            function esc(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+            function span(cls, txt) { return `<span class="${cls}">${esc(txt)}</span>`; }
+
+            // CSS keyword values — things like none, auto, inherit, block, flex, etc.
+            const CSS_KW_VALUES = new Set([
+                'none','auto','inherit','initial','unset','revert','normal','bold','italic',
+                'underline','overline','line-through','block','inline','inline-block','flex',
+                'inline-flex','grid','inline-grid','contents','flow-root','table','hidden',
+                'visible','scroll','clip','relative','absolute','fixed','sticky','static',
+                'center','left','right','top','bottom','middle','baseline','stretch',
+                'nowrap','wrap','wrap-reverse','row','column','row-reverse','column-reverse',
+                'space-between','space-around','space-evenly','flex-start','flex-end',
+                'start','end','solid','dashed','dotted','double','groove','ridge','inset',
+                'outset','transparent','currentColor','sans-serif','serif','monospace',
+                'cursive','fantasy','pointer','default','crosshair','move','text','wait',
+                'not-allowed','grab','grabbing','zoom-in','zoom-out','no-repeat','repeat',
+                'repeat-x','repeat-y','contain','cover','ease','linear','ease-in','ease-out',
+                'ease-in-out','step-start','step-end','forwards','backwards','both','infinite',
+                'alternate','reverse','alternate-reverse','paused','running','uppercase',
+                'lowercase','capitalize','break-word','break-all','keep-all','ellipsis','clip',
+                'collapse','separate','collapse','round','bevel','miter','butt','square',
+                'evenodd','nonzero','flat','preserve-3d','border-box','content-box','padding-box',
+                'local','no-content','no-padding','add','subtract','intersect','exclude',
+                'ltr','rtl','horizontal-tb','vertical-lr','vertical-rl',
+                'balance','auto-fill','auto-fit','minmax','fr',
+                'thick','thin','medium','large','small','x-large','xx-large','x-small','xx-small','smaller','larger',
+            ]);
+
+            // Highlight a CSS value token-by-token
+            function highlightValue(val) {
+                // Tokenize: strings, hex colors, functions, numbers+units, keywords, css vars, !important
+                let i = 0, out = '';
+                while (i < val.length) {
+                    // whitespace
+                    if (/\s/.test(val[i])) { out += esc(val[i]); i++; continue; }
+                    // comment inside value (rare but possible)
+                    if (val.slice(i,i+2) === '/*') {
+                        const end = val.indexOf('*/', i+2);
+                        const s = end === -1 ? val.slice(i) : val.slice(i, end+2);
+                        out += span('css-comment', s);
+                        i += s.length; continue;
+                    }
+                    // !important
+                    if (val.slice(i).match(/^!important\b/)) {
+                        out += span('css-important', '!important');
+                        i += 10; continue;
+                    }
+                    // quoted string
+                    if (val[i] === '"' || val[i] === "'") {
+                        const q = val[i]; let j = i+1;
+                        while (j < val.length && val[j] !== q) { if (val[j]==='\\') j++; j++; }
+                        out += span('css-string', val.slice(i, j+1));
+                        i = j+1; continue;
+                    }
+                    // hex color
+                    if (val[i] === '#') {
+                        const m = val.slice(i).match(/^#[0-9a-fA-F]{3,8}\b/);
+                        if (m) { out += span('css-color-hex', m[0]); i += m[0].length; continue; }
+                    }
+                    // CSS variable --name
+                    if (val.slice(i).match(/^--[a-zA-Z][a-zA-Z0-9-]*/)) {
+                        const m = val.slice(i).match(/^--[a-zA-Z][a-zA-Z0-9-]*/)[0];
+                        out += span('css-var-name', m); i += m.length; continue;
+                    }
+                    // function call: name(
+                    const fnM = val.slice(i).match(/^([a-zA-Z][a-zA-Z0-9-]*)(\s*\()/);
+                    if (fnM) {
+                        const fnName = fnM[1].toLowerCase();
+                        const colorFns = ['rgb','rgba','hsl','hsla','oklch','lch','lab','color','color-mix'];
+                        const cls = colorFns.includes(fnName) ? 'css-color-fn' : 'css-func';
+                        // Find matching close paren
+                        const start = i + fnM[1].length;
+                        let depth=0, j=start;
+                        while (j<val.length) {
+                            if (val[j]==='(') depth++;
+                            else if (val[j]===')') { depth--; if (!depth) { j++; break; } }
+                            j++;
+                        }
+                        const inner = val.slice(start+1, j-1);
+                        out += span(cls, fnM[1]) + span('css-func-paren','(') + highlightValue(inner) + span('css-func-paren',')');
+                        i = j; continue;
+                    }
+                    // number + optional unit
+                    const numM = val.slice(i).match(/^-?(\d+\.?\d*|\.\d+)(px|em|rem|vh|vw|vmin|vmax|%|pt|pc|cm|mm|in|ex|ch|fr|deg|rad|turn|grad|ms|s|dpi|dpcm|dppx)?/);
+                    if (numM && numM[0]) {
+                        const num = numM[1] ? (numM[0].startsWith('-') ? numM[0].slice(0,1+numM[1].length) : numM[1]) : '';
+                        const unit = numM[2] || '';
+                        // Full match with optional leading minus
+                        const full = numM[0];
+                        if (unit) {
+                            const numPart = full.slice(0, full.length - unit.length);
+                            out += span('css-number', numPart) + span('css-unit', unit);
+                        } else if (full && /^-?\d/.test(full)) {
+                            out += span('css-number', full);
+                        } else {
+                            out += esc(val[i]); i++; continue;
+                        }
+                        i += full.length; continue;
+                    }
+                    // keyword value
+                    const kwM = val.slice(i).match(/^[a-zA-Z][a-zA-Z0-9-]*/);
+                    if (kwM) {
+                        const kw = kwM[0];
+                        out += CSS_KW_VALUES.has(kw.toLowerCase()) ? span('css-kw-value', kw) : span('css-value', kw);
+                        i += kw.length; continue;
+                    }
+                    // punctuation / operators / anything else
+                    out += esc(val[i]); i++;
+                }
+                return out;
+            }
+
+            // Highlight a single CSS selector token
+            function highlightSelectorToken(tok) {
+                if (tok.startsWith('.')) return span('css-sel-class', tok);
+                if (tok.startsWith('#')) return span('css-sel-id', tok);
+                if (tok.startsWith(':')) return span('css-sel-pseudo', tok);
+                if (tok.startsWith('[')) return span('css-sel-attr', tok);
+                if (tok === '*' || tok === '>' || tok === '+' || tok === '~' || tok === ',') return span('css-brace', tok);
+                return span('css-selector', tok);
+            }
+
+            // Highlight a selector string (multiple tokens)
+            function highlightSelector(sel) {
+                // Tokenize selector into meaningful parts
+                let out = '', i = 0;
+                while (i < sel.length) {
+                    if (/\s/.test(sel[i])) { out += esc(sel[i]); i++; continue; }
+                    // attribute selector [attr...]
+                    if (sel[i] === '[') {
+                        let j = i+1;
+                        while (j < sel.length && sel[j] !== ']') j++;
+                        out += span('css-sel-attr', sel.slice(i, j+1));
+                        i = j+1; continue;
+                    }
+                    // pseudo :something or ::something
+                    if (sel[i] === ':') {
+                        const m = sel.slice(i).match(/^:{1,2}[a-zA-Z-]+(\([^)]*\))?/);
+                        if (m) { out += span('css-sel-pseudo', m[0]); i += m[0].length; continue; }
+                    }
+                    // combinator
+                    if ('>,+~'.includes(sel[i])) { out += span('css-brace', sel[i]); i++; continue; }
+                    if (sel[i] === ',') { out += span('css-brace', ','); i++; continue; }
+                    // .class
+                    if (sel[i] === '.') {
+                        const m = sel.slice(i).match(/^\.(-?[_a-zA-Z][_a-zA-Z0-9-]*)/);
+                        if (m) { out += span('css-sel-class', m[0]); i += m[0].length; continue; }
+                    }
+                    // #id
+                    if (sel[i] === '#') {
+                        const m = sel.slice(i).match(/^#(-?[_a-zA-Z][_a-zA-Z0-9-]*)/);
+                        if (m) { out += span('css-sel-id', m[0]); i += m[0].length; continue; }
+                    }
+                    // tag or *
+                    const m = sel.slice(i).match(/^(\*|[a-zA-Z][a-zA-Z0-9-]*)/);
+                    if (m) { out += span('css-selector', m[0]); i += m[0].length; continue; }
+                    out += esc(sel[i]); i++;
+                }
+                return out;
+            }
+
+            // Highlight a full CSS line (already stripped of indent)
+            function highlightCssLine(line) {
+                const trimmed = line.trim();
+                if (!trimmed) return esc(line);
+
+                // /* block comment line */
+                if (trimmed.startsWith('/*')) {
+                    // Could be multi-line but we handle per-line
+                    return esc(line.match(/^(\s*)/)[1]) + span('css-comment', trimmed);
+                }
+                // */ end of comment or continuation
+                if (trimmed.startsWith('*')) {
+                    return esc(line.match(/^(\s*)/)[1]) + span('css-comment', trimmed);
+                }
+                // @-rule
+                if (trimmed.startsWith('@')) {
+                    const m = trimmed.match(/^(@[a-zA-Z-]+)(.*)/s);
+                    if (m) return esc(line.match(/^(\s*)/)[1]) + span('css-at-rule', m[1]) + esc(m[2]);
+                    return esc(line);
+                }
+                // property: value; line
+                const propValM = trimmed.match(/^([\w-]+)(\s*:\s*)(.*?)(;?\s*)$/s);
+                if (propValM) {
+                    const indent = line.match(/^(\s*)/)[1];
+                    const [, prop, colon, val, semi] = propValM;
+                    return esc(indent) + span('css-prop', prop) + span('css-colon', colon) + highlightValue(val) + (semi.includes(';') ? span('css-semi', ';') + esc(semi.replace(';','')) : esc(semi));
+                }
+                // Opening brace line  selector { or just {
+                if (trimmed.endsWith('{')) {
+                    const indent = line.match(/^(\s*)/)[1];
+                    const sel = trimmed.slice(0, -1).trimEnd();
+                    return esc(indent) + (sel ? highlightSelector(sel) + ' ' : '') + span('css-brace', '{');
+                }
+                // Closing brace
+                if (trimmed === '}') {
+                    return esc(line.match(/^(\s*)/)[1]) + span('css-brace', '}');
+                }
+                // selector only line (no brace yet)
+                const indent = line.match(/^(\s*)/)[1];
+                return esc(indent) + highlightSelector(trimmed);
+            }
+
+            return { highlightCssLine };
+        })();
+
+        /* =====================================================
+           PUG SYNTAX HIGHLIGHTER
+        ===================================================== */
+        const PugHighlighter = (() => {
+            function esc(s) {
+                return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+            }
+
+            function span(cls, txt) {
+                return `<span class="${cls}">${esc(txt)}</span>`;
+            }
+
+            // Highlight attribute list: key=value pairs inside ()
+            function highlightAttrs(raw) {
+                let out = '';
+                let i = 0;
+                while (i < raw.length) {
+                    const wsM = raw.slice(i).match(/^[\s,]+/);
+                    if (wsM) { out += esc(wsM[0]); i += wsM[0].length; continue; }
+                    const nameM = raw.slice(i).match(/^[a-zA-Z_:][a-zA-Z0-9_.:-]*/);
+                    if (!nameM) { out += esc(raw[i]); i++; continue; }
+                    const attrName = nameM[0];
+                    out += span('pug-attr-name', attrName);
+                    i += attrName.length;
+                    if (raw[i] === '=') {
+                        out += span('pug-attr-paren', '=');
+                        i++;
+                        if (raw[i] === '"' || raw[i] === "'") {
+                            const q = raw[i];
+                            let j = i + 1;
+                            while (j < raw.length && raw[j] !== q) j++;
+                            const val = raw.slice(i, j + 1);
+                            out += span('pug-attr-value', val);
+                            i = j + 1;
+                        } else {
+                            const valM = raw.slice(i).match(/^[^,)]+/);
+                            if (valM) { out += span('pug-attr-value', valM[0]); i += valM[0].length; }
+                        }
+                    }
+                }
+                return out;
+            }
+
+            function highlightInlineTags(text) {
+                return text.replace(/#\[([^\]]+)\]/g, (full, inner) => {
+                    return span('pug-inline-bracket','#[') + highlightTagLine(inner.trim()) + span('pug-inline-bracket',']');
+                });
+            }
+
+            function highlightTagLine(line) {
+                let rest = line;
+                let out = '';
+
+                if (rest.startsWith('//')) return span('pug-comment', rest);
+
+                if (/^doctype\b/i.test(rest)) {
+                    const m = rest.match(/^(doctype)(\s+.*)?$/i);
+                    return span('pug-keyword', m[1]) + span('pug-doctype', m[2] || '');
+                }
+
+                if (rest.startsWith('| ') || rest === '|') {
+                    return span('pug-pipe','|') + (rest.length > 1 ? span('pug-text', rest.slice(1)) : '');
+                }
+
+                if (/^(style|script)\.$/.test(rest.trim())) {
+                    const kw = rest.trim().slice(0,-1);
+                    return span('pug-style-kw', kw) + span('pug-attr-paren', '.');
+                }
+
+                if (rest.startsWith('+') || rest.startsWith('mixin ')) {
+                    return span('pug-mixin', rest);
+                }
+
+                let tag = '';
+                const tagM = rest.match(/^([a-zA-Z][a-zA-Z0-9:-]*)/);
+                if (tagM) {
+                    tag = tagM[1];
+                    out += span('pug-tag', tag);
+                    rest = rest.slice(tag.length);
+                }
+
+                while (true) {
+                    const cls = rest.match(/^(\.)(-?[_a-zA-Z][_a-zA-Z0-9-]*)/);
+                    if (cls) {
+                        out += span('pug-attr-paren', '.') + span('pug-class', cls[2]);
+                        rest = rest.slice(cls[0].length);
+                        continue;
+                    }
+                    const id = rest.match(/^(#)(-?[_a-zA-Z][_a-zA-Z0-9-]*)/);
+                    if (id) {
+                        out += span('pug-attr-paren', '#') + span('pug-id', id[2]);
+                        rest = rest.slice(id[0].length);
+                        continue;
+                    }
+                    break;
+                }
+
+                if (!tag && out === '') {
+                    return span('pug-text', highlightInlineTags(rest));
+                }
+
+                if (rest.startsWith('(')) {
+                    let depth = 0, j = 0, inS = false, sc = '';
+                    for (; j < rest.length; j++) {
+                        const c = rest[j];
+                        if (!inS && (c === '"' || c === "'")) { inS = true; sc = c; }
+                        else if (inS && c === sc) inS = false;
+                        else if (!inS && c === '(') depth++;
+                        else if (!inS && c === ')') { depth--; if (!depth) { j++; break; } }
+                    }
+                    const attrContent = rest.slice(1, j - 1);
+                    out += span('pug-attr-paren', '(') + highlightAttrs(attrContent) + span('pug-attr-paren', ')');
+                    rest = rest.slice(j);
+                }
+
+                if (rest === '.' || /^\.\s*$/.test(rest)) {
+                    out += span('pug-attr-paren', '.');
+                    return out;
+                }
+
+                if (rest.startsWith(' ') || rest.startsWith('\t')) {
+                    out += span('pug-text', ' ') + highlightInlineTags(rest.trimStart());
+                }
+
+                return out;
+            }
+
+            function highlightLine(rawLine) {
+                const indentM = rawLine.match(/^(\s*)(.*)/s);
+                const indentStr = indentM[1];
+                const content = indentM[2];
+                const indentHtml = esc(indentStr);
+                if (!content) return indentHtml;
+                if (content.startsWith('//')) return indentHtml + span('pug-comment', content);
+                return indentHtml + highlightTagLine(content);
+            }
+
+            function highlight(src) {
+                if (!src) return '';
+                const lines = src.split('\n');
+                const result = [];
+
+                // State machine: track whether we're inside a style. or script. block
+                let inStyleBlock = false;
+                let inScriptBlock = false;
+                let blockIndent = -1;
+
+                for (let i = 0; i < lines.length; i++) {
+                    const raw = lines[i];
+                    const trimmed = raw.trim();
+                    const myIndent = raw.match(/^(\s*)/)[1].length;
+
+                    // Check if we're exiting a block
+                    if ((inStyleBlock || inScriptBlock) && trimmed && myIndent <= blockIndent) {
+                        inStyleBlock = false;
+                        inScriptBlock = false;
+                        blockIndent = -1;
+                        // Fall through to normal Pug highlighting
+                    }
+
+                    if (inStyleBlock) {
+                        // Highlight as CSS
+                        result.push(CssHighlighter.highlightCssLine(raw));
+                        continue;
+                    }
+
+                    if (inScriptBlock) {
+                        // Script block: just plain (dim) text — JS highlighting is a future extension
+                        result.push(esc(raw));
+                        continue;
+                    }
+
+                    // Detect start of style. block
+                    if (/^(\s*)style\.\s*$/.test(raw)) {
+                        inStyleBlock = true;
+                        blockIndent = myIndent;
+                        result.push(highlightLine(raw));
+                        continue;
+                    }
+
+                    // Detect start of script. block
+                    if (/^(\s*)script\.\s*$/.test(raw)) {
+                        inScriptBlock = true;
+                        blockIndent = myIndent;
+                        result.push(highlightLine(raw));
+                        continue;
+                    }
+
+                    result.push(highlightLine(raw));
+                }
+
+                return result.join('\n');
+            }
+
+            return { highlight };
+        })();
+
+        /* =====================================================
+           ZERO-DEPENDENCY PUG PARSER
         ===================================================== */
         const PugParser = (() => {
-            const VOID = new Set(['area', 'base', 'br', 'col', 'embed', 'hr', 'img', 'input', 'link', 'meta', 'param', 'source', 'track', 'wbr']);
+            const VOID = new Set(['area','base','br','col','embed','hr','img','input','link','meta','param','source','track','wbr']);
 
             function indent(line) {
                 let n = 0;
-                for (const c of line) {
-                    if (c === ' ') n++;
-                    else if (c === '\t') n += 2;
-                    else break;
-                }
+                for (const c of line) { if (c === ' ') n++; else if (c === '\t') n += 2; else break; }
                 return n;
             }
 
@@ -402,8 +839,8 @@ html(lang="en")
                     if (eq === -1) return p.trim();
                     const key = p.slice(0, eq).trim();
                     let val = p.slice(eq + 1).trim();
-                    if ((val[0] === '"' || val[0] === "'") && val[val.length - 1] === val[0]) val = val.slice(1, -1);
-                    return key + '="' + val.replace(/"/g, '&quot;') + '"';
+                    if ((val[0] === '"' || val[0] === "'") && val[val.length-1] === val[0]) val = val.slice(1,-1);
+                    return key + '="' + val.replace(/"/g,'&quot;') + '"';
                 }).join(' ');
             }
 
@@ -412,16 +849,14 @@ html(lang="en")
                     inner = inner.trim();
                     const m = inner.match(/^([a-zA-Z][a-zA-Z0-9-]*)([.#][^\s(]*)?((?:\([^)]*\)))?\s*(.*)?$/s);
                     if (!m) return inner;
-                    const [, tag, sel = '', rawAttrs, content = ''] = m;
-                    let id = '', cls = [];
-                    (sel.match(/[.#][^.#]*/g) || []).forEach(s => {
-                        if (s[0] === '#') id = s.slice(1); else cls.push(s.slice(1));
-                    });
-                    let a = '';
-                    if (id) a += ' id="' + id + '"';
-                    if (cls.length) a += ' class="' + cls.join(' ') + '"';
-                    if (rawAttrs) a += ' ' + parseAttrs(rawAttrs.slice(1, -1));
-                    return '<' + tag + a + '>' + content + '</' + tag + '>';
+                    const [, tag, sel='', rawAttrs, content=''] = m;
+                    let id='', cls=[];
+                    (sel.match(/[.#][^.#]*/g)||[]).forEach(s => { if (s[0]==='#') id=s.slice(1); else cls.push(s.slice(1)); });
+                    let a='';
+                    if (id) a+=' id="'+id+'"';
+                    if (cls.length) a+=' class="'+cls.join(' ')+'"';
+                    if (rawAttrs) a+=' '+parseAttrs(rawAttrs.slice(1,-1));
+                    return '<'+tag+a+'>'+content+'</'+tag+'>';
                 });
             }
 
@@ -429,11 +864,11 @@ html(lang="en")
                 let rest = line.trim();
                 if (!rest || rest.startsWith('//')) return null;
                 if (/^doctype\b/i.test(rest)) {
-                    const t = rest.replace(/^doctype\s*/i, '').trim();
-                    return { html: (!t || t === 'html') ? '<!DOCTYPE html>' : '<!DOCTYPE ' + t + '>', leaf: true };
+                    const t = rest.replace(/^doctype\s*/i,'').trim();
+                    return { html: (!t||t==='html') ? '<!DOCTYPE html>' : '<!DOCTYPE '+t+'>', leaf: true };
                 }
                 if (rest.startsWith('| ')) return { html: inlineTags(rest.slice(2)), leaf: true };
-                let tag = 'div', id = '', cls = [], attrRaw = '', inlineText = '', blockText = false;
+                let tag='div', id='', cls=[], attrRaw='', inlineText='', blockText=false;
                 const tagM = rest.match(/^([a-zA-Z][a-zA-Z0-9:-]*)/);
                 if (tagM) { tag = tagM[1]; rest = rest.slice(tag.length); }
                 while (true) {
@@ -444,28 +879,27 @@ html(lang="en")
                     break;
                 }
                 if (rest.startsWith('(')) {
-                    let depth = 0, j = 0, inS = false, sc = '';
-                    for (; j < rest.length; j++) {
+                    let depth=0, j=0, inS=false, sc='';
+                    for (; j<rest.length; j++) {
                         const c = rest[j];
-                        if (!inS && (c === '"' || c === "'")) { inS = true; sc = c; }
-                        else if (inS && c === sc) inS = false;
-                        else if (!inS && c === '(') depth++;
-                        else if (!inS && c === ')') { depth--; if (!depth) { j++; break; } }
+                        if (!inS && (c==='"'||c==="'")) { inS=true; sc=c; }
+                        else if (inS && c===sc) inS=false;
+                        else if (!inS && c==='(') depth++;
+                        else if (!inS && c===')') { depth--; if (!depth) { j++; break; } }
                     }
-                    attrRaw = rest.slice(1, j - 1);
+                    attrRaw = rest.slice(1, j-1);
                     rest = rest.slice(j);
                 }
-                if (rest === '.' || /^\.\s*$/.test(rest)) { blockText = true; rest = ''; }
+                if (rest==='.' || /^\.\s*$/.test(rest)) { blockText=true; rest=''; }
                 if (!blockText && (rest.startsWith(' ') || rest.startsWith('\t'))) inlineText = inlineTags(rest.trimStart());
-
-                let attrOut = '';
-                if (id) attrOut += ' id="' + id + '"';
-                if (cls.length) attrOut += ' class="' + cls.join(' ') + '"';
-                if (attrRaw) { const parsed = parseAttrs(attrRaw); if (parsed) attrOut += ' ' + parsed; }
-                if (VOID.has(tag)) return { html: '<' + tag + attrOut + '>', leaf: true };
-                const open = '<' + tag + attrOut + '>';
-                const close = '</' + tag + '>';
-                if (inlineText) return { html: open + inlineText + close, leaf: true };
+                let attrOut='';
+                if (id) attrOut+=' id="'+id+'"';
+                if (cls.length) attrOut+=' class="'+cls.join(' ')+'"';
+                if (attrRaw) { const parsed=parseAttrs(attrRaw); if (parsed) attrOut+=' '+parsed; }
+                if (VOID.has(tag)) return { html: '<'+tag+attrOut+'>', leaf: true };
+                const open='<'+tag+attrOut+'>';
+                const close='</'+tag+'>';
+                if (inlineText) return { html: open+inlineText+close, leaf: true };
                 return { open, close, blockText, leaf: false };
             }
 
@@ -474,7 +908,7 @@ html(lang="en")
                 const lines = src.split('\n');
                 const out = [];
                 let i = 0;
-                function firstNonBlank(from) { for (let k = from; k < lines.length; k++) if (lines[k].trim()) return k; return lines.length; }
+                function firstNonBlank(from) { for (let k=from; k<lines.length; k++) if (lines[k].trim()) return k; return lines.length; }
                 function walk(base) {
                     while (i < lines.length) {
                         const raw = lines[i];
@@ -485,27 +919,15 @@ html(lang="en")
                         const line = raw.trim();
                         if (line.startsWith('//')) { i++; continue; }
                         if (/^style\.\s*$/.test(line)) {
-                            i++; const content = [];
-                            while (i < lines.length) {
-                                const nx = lines[i];
-                                if (!nx.trim()) { content.push(''); i++; continue; }
-                                if (indent(nx) <= myInd) break;
-                                content.push(nx.slice(myInd + 2));
-                                i++;
-                            }
-                            out.push('<style>' + content.join('\n') + '</style>');
+                            i++; const content=[];
+                            while (i<lines.length) { const nx=lines[i]; if (!nx.trim()) { content.push(''); i++; continue; } if (indent(nx)<=myInd) break; content.push(nx.slice(myInd+2)); i++; }
+                            out.push('<style>'+content.join('\n')+'</style>');
                             continue;
                         }
                         if (/^script\.\s*$/.test(line)) {
-                            i++; const content = [];
-                            while (i < lines.length) {
-                                const nx = lines[i];
-                                if (!nx.trim()) { content.push(''); i++; continue; }
-                                if (indent(nx) <= myInd) break;
-                                content.push(nx.slice(myInd + 2));
-                                i++;
-                            }
-                            out.push('<script>' + content.join('\n') + '<\/script>');
+                            i++; const content=[];
+                            while (i<lines.length) { const nx=lines[i]; if (!nx.trim()) { content.push(''); i++; continue; } if (indent(nx)<=myInd) break; content.push(nx.slice(myInd+2)); i++; }
+                            out.push('<script>'+content.join('\n')+'<\/script>');
                             continue;
                         }
                         i++;
@@ -514,49 +936,101 @@ html(lang="en")
                         if (parsed.leaf) { out.push(parsed.html); continue; }
                         const { open, close, blockText } = parsed;
                         const nextI = firstNonBlank(i);
-                        const childInd = nextI < lines.length ? indent(lines[nextI]) : -1;
+                        const childInd = nextI<lines.length ? indent(lines[nextI]) : -1;
                         if (blockText) {
-                            const textLines = [];
-                            while (i < lines.length) {
-                                const nx = lines[i];
-                                if (!nx.trim()) { textLines.push(''); i++; continue; }
-                                if (indent(nx) <= myInd) break;
-                                textLines.push(nx.slice(myInd + 2));
-                                i++;
-                            }
-                            out.push(open + textLines.join('\n') + close);
+                            const textLines=[];
+                            while (i<lines.length) { const nx=lines[i]; if (!nx.trim()) { textLines.push(''); i++; continue; } if (indent(nx)<=myInd) break; textLines.push(nx.slice(myInd+2)); i++; }
+                            out.push(open+textLines.join('\n')+close);
                             continue;
                         }
-                        if (childInd > myInd) { out.push(open); walk(childInd); out.push(close); }
-                        else { out.push(open + close); }
+                        if (childInd>myInd) { out.push(open); walk(childInd); out.push(close); }
+                        else { out.push(open+close); }
                     }
                 }
                 const firstLine = firstNonBlank(0);
-                const baseInd = firstLine < lines.length ? indent(lines[firstLine]) : 0;
+                const baseInd = firstLine<lines.length ? indent(lines[firstLine]) : 0;
                 walk(baseInd);
                 return out.join('\n');
             }
             return { compile };
         })();
 
-        // DOM elements
-        const landingView = document.getElementById('landing-view');
-        const editorView = document.getElementById('editor-view');
-        const launchBtn = document.getElementById('launch-editor-btn');
-        const navLanding = document.getElementById('nav-landing');
-        const navEditor = document.getElementById('nav-editor');
+        /* =====================================================
+           EDITOR SYNC: textarea ↔ highlight layer ↔ line numbers
+        ===================================================== */
+        const editorEl    = document.getElementById('editor');
+        const highlightEl = document.getElementById('highlight-layer');
+        const lineNumEl   = document.getElementById('line-numbers');
+
+        let currentLine = 0;
+
+        function syncHighlight() {
+            const src = editorEl.value;
+            highlightEl.innerHTML = PugHighlighter.highlight(src) + '\n'; // trailing newline keeps height
+        }
+
+        function syncLineNumbers() {
+            const lines = editorEl.value.split('\n');
+            const count = lines.length;
+            if (lineNumEl._lastCount === count && lineNumEl._lastLine === currentLine) return;
+            lineNumEl._lastCount = count;
+            lineNumEl._lastLine = currentLine;
+            let html = '';
+            for (let i = 1; i <= count; i++) {
+                const active = (i === currentLine) ? ' style="color:#d4930a;"' : '';
+                html += `<div${active}>${i}</div>`;
+            }
+            lineNumEl.innerHTML = html;
+        }
+
+        function syncScroll() {
+            // Sync highlight layer scroll with textarea
+            highlightEl.scrollTop  = editorEl.scrollTop;
+            highlightEl.scrollLeft = editorEl.scrollLeft;
+            lineNumEl.scrollTop    = editorEl.scrollTop;
+        }
+
+        function getCaretLine() {
+            const text = editorEl.value.slice(0, editorEl.selectionStart);
+            return text.split('\n').length;
+        }
+
+        editorEl.addEventListener('scroll', syncScroll);
+        editorEl.addEventListener('input', () => {
+            currentLine = getCaretLine();
+            syncHighlight();
+            syncLineNumbers();
+        });
+        editorEl.addEventListener('keyup', () => { currentLine = getCaretLine(); syncLineNumbers(); });
+        editorEl.addEventListener('click', () => { currentLine = getCaretLine(); syncLineNumbers(); });
+        editorEl.addEventListener('focus', () => { currentLine = getCaretLine(); syncLineNumbers(); });
+
+        // Initial highlight
+        function initHighlight() {
+            syncHighlight();
+            currentLine = 1;
+            syncLineNumbers();
+        }
+
+        /* =====================================================
+           APP LOGIC
+        ===================================================== */
+        const landingView  = document.getElementById('landing-view');
+        const editorView   = document.getElementById('editor-view');
+        const launchBtn    = document.getElementById('launch-editor-btn');
+        const navLanding   = document.getElementById('nav-landing');
+        const navEditor    = document.getElementById('nav-editor');
         const navHomeTrigger = document.getElementById('nav-home-trigger');
-        const editor = document.getElementById('editor');
-        const frame = document.getElementById('preview-frame');
-        const previewWrap = document.getElementById('preview-wrap');
-        const errorBox = document.getElementById('error-box');
+        const frame        = document.getElementById('preview-frame');
+        const previewWrap  = document.getElementById('preview-wrap');
+        const errorBox     = document.getElementById('error-box');
         const errorMsgSpan = document.getElementById('error-msg');
-        const dot = document.getElementById('dot');
-        const st = document.getElementById('st');
-        const li = document.getElementById('li');
-        const rt = document.getElementById('rt');
-        const sz = document.getElementById('sz');
-        const toast = document.getElementById('toast');
+        const dot          = document.getElementById('dot');
+        const st           = document.getElementById('st');
+        const li           = document.getElementById('li');
+        const rt           = document.getElementById('rt');
+        const sz           = document.getElementById('sz');
+        const toast        = document.getElementById('toast');
 
         let compiled = '';
         let timer = null;
@@ -565,22 +1039,20 @@ html(lang="en")
             if (view === 'landing') {
                 landingView.classList.add('hidden');
                 editorView.classList.add('hidden');
-                setTimeout(() => {
-                    landingView.classList.remove('hidden');
-                }, 10);
+                setTimeout(() => { landingView.classList.remove('hidden'); }, 10);
             } else {
                 landingView.classList.add('hidden');
                 editorView.classList.remove('hidden');
                 render();
             }
-            [navLanding, navEditor].forEach(n => n.classList.remove('text-[#d4930a]', 'font-bold'));
-            if (view === 'landing') navLanding.classList.add('text-[#d4930a]', 'font-bold');
-            else navEditor.classList.add('text-[#d4930a]', 'font-bold');
+            [navLanding, navEditor].forEach(n => n.classList.remove('text-[#d4930a]','font-bold'));
+            if (view === 'landing') navLanding.classList.add('text-[#d4930a]','font-bold');
+            else navEditor.classList.add('text-[#d4930a]','font-bold');
         }
 
         function render() {
-            const src = editor.value;
-            if (!src.trim()) { frame.srcdoc = ''; return; }
+            const src = editorEl.value;
+            if (!src.trim()) { frame.srcdoc=''; return; }
             try {
                 const t0 = performance.now();
                 compiled = PugParser.compile(src);
@@ -588,81 +1060,88 @@ html(lang="en")
                 frame.srcdoc = compiled;
                 previewWrap.style.display = 'block';
                 errorBox.style.display = 'none';
-                setStatus('ok', 'OK');
+                setStatus('ok','OK');
                 rt.innerHTML = `<i class="fas fa-stopwatch"></i> ${ms} ms`;
                 sz.innerHTML = `<i class="fas fa-database"></i> ${fmtBytes(new Blob([compiled]).size)}`;
-            } catch (e) {
+            } catch(e) {
                 compiled = '';
                 previewWrap.style.display = 'none';
                 errorBox.style.display = 'flex';
                 errorMsgSpan.textContent = e.message;
-                setStatus('err', 'Error');
-                rt.textContent = '';
-                sz.textContent = '';
+                setStatus('err','Error');
+                rt.textContent=''; sz.textContent='';
             }
             updateMeta();
         }
 
         function setStatus(type, msg) {
-            dot.className = `dot w-2 h-2 rounded-full ${type === 'ok' ? 'bg-[#4caf7d]' : 'bg-[#e05c5c]'}`;
-            st.className = type === 'ok' ? 'text-[#4caf7d]' : 'text-[#e05c5c]';
+            dot.className = `dot w-2 h-2 rounded-full ${type==='ok'?'bg-[#4caf7d]':'bg-[#e05c5c]'}`;
+            st.className = type==='ok' ? 'text-[#4caf7d]' : 'text-[#e05c5c]';
             st.textContent = msg;
         }
 
         function updateMeta() {
-            const n = editor.value.split('\n').length;
-            li.innerHTML = `<i class="fas fa-code"></i> ${n} ${n === 1 ? 'line' : 'lines'}`;
+            const n = editorEl.value.split('\n').length;
+            li.innerHTML = `<i class="fas fa-code"></i> ${n} ${n===1?'line':'lines'}`;
         }
 
-        function fmtBytes(b) { return b < 1024 ? b + ' B' : (b / 1024).toFixed(1) + ' KB'; }
+        function fmtBytes(b) { return b<1024 ? b+' B' : (b/1024).toFixed(1)+' KB'; }
 
         function showToast(msg, isErr) {
             toast.textContent = msg;
             toast.style.background = isErr ? 'rgba(224,92,92,0.9)' : 'rgba(0,0,0,0.85)';
             toast.classList.add('show');
             clearTimeout(window.toastTimer);
-            window.toastTimer = setTimeout(() => toast.classList.remove('show'), 2000);
+            window.toastTimer = setTimeout(()=>toast.classList.remove('show'), 2000);
         }
 
-        // Event listeners
-        editor.addEventListener('input', () => { updateMeta(); clearTimeout(timer); timer = setTimeout(render, 350); });
-        editor.addEventListener('keydown', e => {
+        // Textarea keydown
+        editorEl.addEventListener('input', () => { updateMeta(); clearTimeout(timer); timer = setTimeout(render, 350); });
+        editorEl.addEventListener('keydown', e => {
             if (e.key === 'Tab') {
                 e.preventDefault();
-                const s = editor.selectionStart, en = editor.selectionEnd;
-                editor.value = editor.value.slice(0, s) + '  ' + editor.value.slice(en);
-                editor.selectionStart = editor.selectionEnd = s + 2;
-                updateMeta(); clearTimeout(timer); timer = setTimeout(render, 350);
+                const s=editorEl.selectionStart, en=editorEl.selectionEnd;
+                editorEl.value = editorEl.value.slice(0,s)+'  '+editorEl.value.slice(en);
+                editorEl.selectionStart = editorEl.selectionEnd = s+2;
+                syncHighlight(); syncLineNumbers();
+                updateMeta(); clearTimeout(timer); timer=setTimeout(render,350);
             }
-            if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') { e.preventDefault(); clearTimeout(timer); render(); }
+            if ((e.ctrlKey||e.metaKey) && e.key==='Enter') { e.preventDefault(); clearTimeout(timer); render(); }
         });
 
-        document.getElementById('btn-run').addEventListener('click', () => { clearTimeout(timer); render(); });
-        document.getElementById('btn-copy').addEventListener('click', () => {
+        document.getElementById('btn-run').addEventListener('click', ()=>{ clearTimeout(timer); render(); });
+        document.getElementById('btn-copy').addEventListener('click', ()=>{
             if (!compiled) { showToast('Render first', true); return; }
-            navigator.clipboard.writeText(compiled).then(() => showToast('Copied HTML ✓')).catch(() => { const ta = document.createElement('textarea'); ta.value = compiled; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta); showToast('Copied'); });
+            navigator.clipboard.writeText(compiled).then(()=>showToast('Copied HTML ✓')).catch(()=>{ const ta=document.createElement('textarea'); ta.value=compiled; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta); showToast('Copied'); });
         });
-        document.getElementById('btn-clear').addEventListener('click', () => { editor.value = ''; compiled = ''; frame.srcdoc = ''; errorBox.style.display = 'none'; previewWrap.style.display = 'block'; setStatus('ok', 'Cleared'); rt.textContent = ''; sz.textContent = ''; updateMeta(); });
+        document.getElementById('btn-clear').addEventListener('click', ()=>{
+            editorEl.value=''; compiled=''; frame.srcdoc='';
+            errorBox.style.display='none'; previewWrap.style.display='block';
+            setStatus('ok','Cleared'); rt.textContent=''; sz.textContent='';
+            syncHighlight(); syncLineNumbers(); updateMeta();
+        });
 
         // Divider drag
         const divider = document.getElementById('divider');
         const paneLeft = document.getElementById('pane-left');
         const panesContainer = document.getElementById('panes');
-        let dragging = false, startX = 0, startW = 0;
-        divider.addEventListener('mousedown', e => { dragging = true; startX = e.clientX; startW = paneLeft.getBoundingClientRect().width; divider.classList.add('active'); document.body.style.cursor = 'col-resize'; e.preventDefault(); });
-        document.addEventListener('mousemove', e => { if (!dragging) return; const total = panesContainer.getBoundingClientRect().width - 4; let newW = Math.max(200, Math.min(total - 200, startW + (e.clientX - startX))); paneLeft.style.flex = 'none'; paneLeft.style.width = newW + 'px'; });
-        document.addEventListener('mouseup', () => { if (dragging) { dragging = false; divider.classList.remove('active'); document.body.style.cursor = ''; } });
+        let dragging=false, startX=0, startW=0;
+        divider.addEventListener('mousedown', e=>{ dragging=true; startX=e.clientX; startW=paneLeft.getBoundingClientRect().width; divider.classList.add('active'); document.body.style.cursor='col-resize'; e.preventDefault(); });
+        document.addEventListener('mousemove', e=>{ if (!dragging) return; const total=panesContainer.getBoundingClientRect().width-4; let newW=Math.max(200,Math.min(total-200,startW+(e.clientX-startX))); paneLeft.style.flex='none'; paneLeft.style.width=newW+'px'; });
+        document.addEventListener('mouseup', ()=>{ if (dragging) { dragging=false; divider.classList.remove('active'); document.body.style.cursor=''; } });
 
         // Navigation
-        launchBtn.addEventListener('click', () => setActiveView('editor'));
-        navLanding.addEventListener('click', () => setActiveView('landing'));
-        navEditor.addEventListener('click', () => setActiveView('editor'));
-        navHomeTrigger.addEventListener('click', () => setActiveView('landing'));
+        launchBtn.addEventListener('click', ()=>setActiveView('editor'));
+        navLanding.addEventListener('click', ()=>setActiveView('landing'));
+        navEditor.addEventListener('click', ()=>setActiveView('editor'));
+        navHomeTrigger.addEventListener('click', ()=>setActiveView('landing'));
 
-        // Set dynamic years
+        // Years
         document.getElementById('landing-year').innerText = new Date().getFullYear();
         document.getElementById('year-dynamic').innerText = new Date().getFullYear();
 
+        // Init
+        initHighlight();
         updateMeta();
         setActiveView('landing');
     </script>
